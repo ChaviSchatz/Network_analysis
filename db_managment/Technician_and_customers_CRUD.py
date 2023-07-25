@@ -6,6 +6,23 @@ from db_managment.db_connection import connection
 from models.entities import Technician, Client
 
 
+async def insert_client(client):
+    try:
+        client_insert = """INSERT INTO tbl_client (
+           fullName)
+           VALUES (%s)"""
+
+        data = [
+        ]
+
+        connection.execute(client_insert, data)
+        connection.commit()
+        print('Record inserted successfully...')
+    except:
+        connection.rollback()
+    connection.close()
+
+
 async def create_technician(technician: Technician):
     try:
         with connection.cursor() as cursor:
