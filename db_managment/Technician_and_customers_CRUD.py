@@ -1,8 +1,9 @@
 from db_connection import connection
 import asyncio
+from models.entities import Client, Technician
 
 
-async def create_client(client):
+async def create_client(client: Client):
     try:
         with connection.cursor() as cursor:
             query = """INSERT INTO client (
@@ -16,7 +17,7 @@ async def create_client(client):
     connection.close()
 
 
-async def update_technician(technician):
+async def update_technician(technician : Technician):
     try:
         with connection.cursor() as cursor:
             query = "UPDATE technician SET fullName=%s, hashed_password=%s WHERE id=%s"
@@ -58,7 +59,7 @@ async def main():
     # update_costumer({"fullName": "Yosef Cohen", "id": 1})
     #  await create_client({"fullName": "Yorram"})
     # await create_technician({"fullName":"Danni", "hashed_password": "$2b$12$.MNAWIkzK6QF11dRVmMxXOzcfxUuRH.Udf7DsQ.27nT0X4FO4qeN."})
-    await update_technician({"fullName":"Ron", "hashed_password": "$2b$12$.MNAWIkzK6QF11dRVmMxXOzcfxUuRH.Udf7DsQ.27nT0X4FO4qeN.", "id":1})
+    await update_technician({"fullName": "Ron", "hashed_password": "$2b$12$.MNAWIkzK6QF11dRVmMxXOzcfxUuRH.Udf7DsQ.27nT0X4FO4qeN.", "id":1})
 
 
 asyncio.run(main())
