@@ -54,12 +54,13 @@ async def insert_connections(list_of_connections: List[Connection]):
 async def main():
     # id = await create_network({"client_id": 1, "net_location": "Haifa", "production_date": "2023-07-25"})
     # print("ID:", id)
-    d = Device(network_id=1, mac_address="00:1A:2B:3C:4D:5E", ip_address="192.168.0.1", vendor="Cisco")
+    # d = Device(network_id=1, mac_address="00:1A:2B:3C:4D:5E", ip_address="192.168.0.1", vendor="Cisco")
     # list_of_devices = [d]
     # await insert_network(list_of_devices)
-    # l = [Connection(src=1, dst=1, protocol="tcp/ip")]
+    l = [Connection(src=1, dst=1, protocol="tcp/ip")]
     a = await insert_connections(l)
     print(a)
 
 
 asyncio.run(main())
+

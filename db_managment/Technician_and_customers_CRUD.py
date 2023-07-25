@@ -3,6 +3,9 @@ import asyncio
 from models.entities import Client, Technician
 
 
+
+
+
 async def create_client(client: Client):
     try:
         with connection.cursor() as cursor:
