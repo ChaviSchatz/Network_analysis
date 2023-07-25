@@ -1,6 +1,7 @@
 from pydantic import BaseModel, constr
 from pymysql import Date
 
+
 class Client(BaseModel):
     id: int
     fullName: constr(max_length=40)
@@ -32,4 +33,3 @@ class Connection(BaseModel):
     src: int
     dst: int
     protocol: constr(max_length=15)
-
