@@ -1,10 +1,10 @@
 import pymysql
 
 connection = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="",
-    db="network_analysis",
+    host="sql6.freesqldatabase.com",
+    user="sql6635197",
+    password="QK5b9RZy6E",
+    db="sql6635197",
     charset="utf8",
     cursorclass=pymysql.cursors.DictCursor
 )
