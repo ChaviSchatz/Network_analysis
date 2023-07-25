@@ -1,23 +1,21 @@
+from db_connection import connection
+from models.entities import Client, Technician
 import asyncio
 
 import pymysql
 
 from db_managment.db_connection import connection
-from models.entities import Technician, Client
 
 
-async def insert_client(client):
+async def create_client(client: Client):
     try:
-        client_insert = """INSERT INTO tbl_client (
-           fullName)
-           VALUES (%s)"""
-
-        data = [
-        ]
-
-        connection.execute(client_insert, data)
-        connection.commit()
-        print('Record inserted successfully...')
+        with connection.cursor() as cursor:
+            query = """INSERT INTO client (
+               fullName)
+               VALUES (%s)"""
+            data = (client["fullName"])
+            cursor.execute(query, data)
+            connection.commit()
     except:
         connection.rollback()
     connection.close()
