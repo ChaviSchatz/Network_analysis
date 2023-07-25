@@ -1,14 +1,16 @@
+from typing import Union
+
 from pydantic import BaseModel, constr
 from pymysql import Date
 
 
 class Client(BaseModel):
-    id: int
+    id: Union[int, None] = None
     fullName: constr(max_length=40)
 
 
 class Technician(BaseModel):
-    id: int
+    id: Union[int, None] = None
     fullName: constr(max_length=40)
     hashed_password: constr(max_length=100)
 
