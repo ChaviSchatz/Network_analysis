@@ -2,6 +2,7 @@ from typing import Union, List
 
 from pydantic import BaseModel, constr
 from pymysql import Date
+from typing import Union
 
 
 class Client(BaseModel):
@@ -36,6 +37,14 @@ class Network(BaseModel):
     client_id: int
     net_location: constr(max_length=100)
     production_date: Date
+
+
+class Device(BaseModel):
+    id: Union[int, None] = None
+    network_id: Union[int, None] = None
+    mac_address: constr(min_length=15, max_length=17)
+    ip_address: constr( max_length=39)
+    vendor: constr(max_length=32)
     devices: Union[List[Device], None] = None
 
 
