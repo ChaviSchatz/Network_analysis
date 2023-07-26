@@ -4,7 +4,7 @@ from typing import List
 import pymysql
 
 from db_managment.db_connection import connection
-from db_managment.models.entities import Connection, Client, Technician, TargetDevice
+from db_managment.models.entities import Connection, Client, Technician, TargetDevice, Network
 from models.entities import Device
 
 async def create_client(client: Client):
