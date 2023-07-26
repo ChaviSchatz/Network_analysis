@@ -16,7 +16,7 @@ async def create_network(network: Network):
             connection.commit()
             network_id = cursor.lastrowid
             return network_id
-    except:
+    except Exception:
         connection.rollback()
     connection.close()
 
