@@ -50,7 +50,7 @@ async def insert_connections(list_of_connections: List[Connection]):
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
     try:
         with connection.cursor() as cursor:
-            sql = """SELECT * FROM device WHERE network_id = (%s)"""
+            sql = """SELECT * FROM device WHERE network_id = (%s) """
             params = [network_id]
             # counter = 0
             for key, value in the_filter.items():
@@ -99,8 +99,8 @@ async def main():
     # connections = await get_connections_by_protocol_filter("tcp/ip")
     # print(connections)
 
-    networks = await get_network_by_client_id(1)
-    print(networks)
+    # networks = await get_network_by_client_id(1)
+    # print(networks)
 
     # id = await create_network({"client_id": 1, "net_location": "Haifa", "production_date": "2023-07-25"})
     # print("ID:", id)
@@ -111,9 +111,11 @@ async def main():
     # a = await insert_connections(l)
     # print(a)
 
-    # filter_conditions = {"vendor": "Cisco", "ip_address": "192.168.0.1"}
-    # devices = await get_devices_by_one_or_more_filter(1, filter_conditions)
-    # print(devices)
+    filter_conditions = {"ip_address": "192.168.0.1"}
+    # filter_conditions = {"vendor": "Cisco"}
+    # filter_conditions = "Cisco"
+    devices = await get_devices_by_one_or_more_filter(1, filter_conditions)
+    print(devices)
 
 
 
