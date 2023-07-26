@@ -1,10 +1,11 @@
-from models.entities import Client, Technician, TargetDevice, Network, Device
 import asyncio
+from typing import List
 
 import pymysql
 
 from db_managment.db_connection import connection
-
+from db_managment.models.entities import Connection, Client, Technician, TargetDevice
+from models.entities import Device
 
 async def create_client(client: Client):
     try:
