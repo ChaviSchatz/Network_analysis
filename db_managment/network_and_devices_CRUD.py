@@ -41,39 +41,67 @@ async def insert_connections(list_of_connections: List[Connection]):
                    VALUES (%s, %s, %s)"""
             for con in list_of_connections:
                 val = (con.src, con.dst, con.protocol)
-                print("data", val)
                 cursor.execute(sql, val)
-                print(4)
-            # val = list_of_connections
-            # cursor.execute(sql, val)
             connection.commit()
     except Exception:
         raise Exception("Technician not recognized in the system.")
 
 
-async def get_device_by_filter(network_id, the_filter):
+async def get_devices_by_one_or_more_filter(network_id, the_filter):
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM device WHERE network_id = %s"
+            sql = """SELECT * FROM device WHERE network_id = (%s)"""
             params = [network_id]
+            # counter = 0
             for key, value in the_filter.items():
-                sql += " AND %s = %s"
+                sql += """ AND (%s) = (%s)"""
                 params.append(key)
                 params.append(value)
-            print(params)
+                # counter += 1
+            # sql += f""" VALUES %s {'%s ' *2*counter}"""
             print(sql)
+            print(params)
             cursor.execute(sql, params)
             result = cursor.fetchall()
-            connection.close()
             return result
     except Exception:
         connection.rollback()
+    connection.close()
 
-# finally:
-# connection.close()
+
+async def get_connections_by_protocol_filter(protocol_filter):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM connection WHERE protocol = (%s)"""
+            print(sql)
+            cursor.execute(sql, protocol_filter)
+            result = cursor.fetchall()
+            return result
+    except Exception:
+        connection.rollback()
+    connection.close()
+
+
+async def get_network_by_client_id(client_id):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM network WHERE client_id = (%s)"""
+            print(sql)
+            cursor.execute(sql, client_id)
+            result = cursor.fetchall()
+            return result
+    except Exception:
+        connection.rollback()
+    connection.close()
 
 
 async def main():
+    # connections = await get_connections_by_protocol_filter("tcp/ip")
+    # print(connections)
+
+    networks = await get_network_by_client_id(1)
+    print(networks)
+
     # id = await create_network({"client_id": 1, "net_location": "Haifa", "production_date": "2023-07-25"})
     # print("ID:", id)
     # d = Device(network_id=1, mac_address="00:1A:2B:3C:4D:5E", ip_address="192.168.0.1", vendor="Cisco")
@@ -82,9 +110,12 @@ async def main():
     # l = [Connection(src=1, dst=1, protocol="tcp/ip")]
     # a = await insert_connections(l)
     # print(a)
-    filter_conditions = {"vendor": "Cisco"}
-    devices = await get_device_by_filter(1, filter_conditions)
-    print(devices)
+
+    # filter_conditions = {"vendor": "Cisco", "ip_address": "192.168.0.1"}
+    # devices = await get_devices_by_one_or_more_filter(1, filter_conditions)
+    # print(devices)
+
+
 
 
 asyncio.run(main())
