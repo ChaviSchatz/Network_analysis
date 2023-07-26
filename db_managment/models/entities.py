@@ -21,14 +21,17 @@ class BaseDevice(BaseModel):
     ip_address: constr(min_length=7, max_length=39)
     vendor: constr(max_length=32)
 
+    def __eq__(self, other):
+        return self.mac_address == other.mac_address
+
 
 class TargetDevice(BaseDevice):
     protocol: constr(max_length=15)
 
 
 class Device(BaseDevice):
-    id: int
-    network_id: int
+    id: Union[int, None] = None
+    network_id: Union[int, None] = None
     target_devices: Union[List[TargetDevice], None] = None
 
 
