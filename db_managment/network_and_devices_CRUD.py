@@ -1,7 +1,38 @@
 from db_managment.db_connection import connection
 from db_managment.models.entities import Connection, TargetDevice, Device, Network
-from typing import List
+from db_connection import connection
 import asyncio
+from models.entities import Network, Device, Connection
+from typing import List
+
+
+async def create_network(network: Network):
+    try:
+        with connection.cursor() as cursor:
+            query = """INSERT INTO network (client_id, net_location, production_date)
+                            VALUES (%s, %s, %s)"""
+            data = (network.client_id, network.net_location, network.production_date)
+            cursor.execute(query, data)
+            connection.commit()
+            network_id = cursor.lastrowid
+            return network_id
+    except:
+        connection.rollback()
+    connection.close()
+
+
+async def insert_network(device_list: List[Device]):
+    try:
+        with connection.cursor() as cursor:
+            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
+                                             VALUES (%s, %s, %s, %s)"""
+            for d in device_list:
+                data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
+                cursor.execute(query, data)
+            connection.commit()
+    except Exception:
+        connection.rollback()
+    connection.close()
 
 
 async def insert_connections(list_of_connections: List[Connection]):
@@ -11,11 +42,7 @@ async def insert_connections(list_of_connections: List[Connection]):
                    VALUES (%s, %s, %s)"""
             for con in list_of_connections:
                 val = (con.src, con.dst, con.protocol)
-                print("data", val)
                 cursor.execute(sql, val)
-                print(4)
-            # val = list_of_connections
-            # cursor.execute(sql, val)
             connection.commit()
     except Exception:
         raise Exception("Technician not recognized in the system.")
@@ -51,6 +78,49 @@ async def get_network(network_id):
             return get_network_obj_from_data(all_data)
     except Exception:
         raise Exception("can't insert technician to db")
+
+
+async def get_devices_by_one_or_more_filter(network_id, the_filter):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM device WHERE network_id = (%s) """
+            params = [network_id]
+            # counter = 0
+            for key, value in the_filter.items():
+                sql += """ AND (%s) = (%s)"""
+                params.append(key)
+                params.append(value)
+
+            cursor.execute(sql, params)
+            result = cursor.fetchall()
+            return result
+    except Exception:
+        connection.rollback()
+    connection.close()
+
+
+async def get_connections_by_protocol_filter(protocol_filter):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM connection WHERE protocol = (%s)"""
+            cursor.execute(sql, protocol_filter)
+            result = cursor.fetchall()
+            return result
+    except Exception:
+        connection.rollback()
+    connection.close()
+
+
+async def get_network_by_client_id(client_id):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM network WHERE client_id = (%s)"""
+            cursor.execute(sql, client_id)
+            result = cursor.fetchall()
+            return result
+    except Exception:
+        connection.rollback()
+    connection.close()
 
 
 # The function takes the information from the database and
@@ -90,4 +160,3 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
-
