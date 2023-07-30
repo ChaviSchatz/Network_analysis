@@ -1,6 +1,7 @@
 from typing import Tuple, Any
 from db_connection import connection
 from models.entities import Client, Technician
+import asyncio
 
 
 async def create_client(client: Client):
@@ -81,6 +82,7 @@ async def technician_associated_with_client(technician_id, client_id):
             return False
     except Exception:
         raise Exception("Technician not associated with this client.")
+
 
 
 

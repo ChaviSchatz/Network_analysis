@@ -93,10 +93,12 @@ async def get_devices_by_one_or_more_filter(network_id, the_filter):
 
             cursor.execute(sql, params)
             result = cursor.fetchall()
+            connection.close()
             return result
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, it is an error in get_devices_by_one_or_more_filter")
 
 
 async def get_connections_by_protocol_filter(protocol_filter):
@@ -105,10 +107,12 @@ async def get_connections_by_protocol_filter(protocol_filter):
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
             cursor.execute(sql, protocol_filter)
             result = cursor.fetchall()
+            connection.close()
             return result
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, it is an error in get_connections_by_protocol_filter")
 
 
 async def get_network_by_client_id(client_id):
@@ -117,24 +121,12 @@ async def get_network_by_client_id(client_id):
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
             cursor.execute(sql, client_id)
             result = cursor.fetchall()
-            return result
-    except Exception:
-        connection.rollback()
-    connection.close()
-
-
-async def get_network_by_network_id(network_id):
-    try:
-        with connection.cursor() as cursor:
-            sql = """SELECT * FROM network WHERE network_id = (%s)"""
-            cursor.execute(sql, network_id)
-            result = cursor.fetchall()
             connection.close()
             return result
     except Exception:
         connection.rollback()
         connection.close()
-        raise Exception("Opss' it is error in get_network_by_network_id")
+        raise Exception("Opss, it is an error in get_network_by_client_id")
 
 
 # The function takes the information from the database and
@@ -174,5 +166,3 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
-
-
