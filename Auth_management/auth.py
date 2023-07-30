@@ -1,6 +1,5 @@
-# must add to technical user_name field and by this to do the auth!!!!!!!
 from datetime import datetime, timedelta
-from typing import Union, Optional, Dict
+from typing import Union, Optional, Dict, Any, Coroutine
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, status, Request, Response, encoders
@@ -13,7 +12,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from Auth_management.auth_models import TokenData, User
-from db_managment.Technician_and_customers_CRUD import technician_verification, technician_associated_with_client
+from db_managment.technician_and_customers_CRUD import technician_verification, technician_associated_with_client
 from db_managment.models.entities import Technician
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -60,25 +59,27 @@ def verify_password(plain_password, hashed_password):
 
 
 # get user by username
-def get_user(username: str):
-    return technician_verification(username)
+async def get_user(email: str) -> Technician | None:
+    user = await technician_verification(email)
+    technician = Technician(**user)
+    return technician
 
 
 #     get username and password and needs to check if its exists in db and
 #     if the hash password verify to the password he enters
-def authenticate_user(username: str, password: str):
-    user: Technician = get_user(username)
+async def authenticate_user(email: str, password: str, client_id: int):
+    user: Technician = await get_user(email)
     if not user:
         return None
-    if not verify_password(user.password, user.hashed_password):
+    if not verify_password(password, user.hashed_password):
         return None
-    if not client_authorization_check(user.id, user.password):
+    if not await client_authorization_check(user.id, client_id):
         return None
     return user
 
 
-def client_authorization_check(technician_id, client_id):
-    return technician_associated_with_client(technician_id, client_id)
+async def client_authorization_check(technician_id, client_id):
+    return await technician_associated_with_client(technician_id, client_id)
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
@@ -100,13 +101,13 @@ async def get_current_user(token: str = Depends(oauth2_cookie_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
+    user = await get_user(email=token_data.email)
     if user is None:
         raise credentials_exception
     return user

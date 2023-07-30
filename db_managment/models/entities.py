@@ -13,7 +13,6 @@ class Client(BaseModel):
 class Technician(User):
     id: Union[int, None] = None
     hashed_password: constr(max_length=100)
-    user_name: constr(max_length=40)
 
 
 class BaseDevice(BaseModel):

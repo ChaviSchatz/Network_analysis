@@ -1,6 +1,6 @@
 from typing import Union
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, EmailStr
 
 
 class Token(BaseModel):
@@ -9,11 +9,11 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: Union[str, None] = None
+    email: Union[EmailStr, None] = None
 
 
 class User(BaseModel):
     password: Union[constr(min_length=8), None] = None
     disabled: Union[bool, None] = None
-    user_name: constr(min_length=3, max_length=20)
-    full_name: constr(max_length=40)
+    email: Union[EmailStr, None] = None
+    full_name: Union[constr(max_length=40), None] = None
