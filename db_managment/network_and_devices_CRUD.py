@@ -1,8 +1,5 @@
-from db_managment.db_connection import connection
-from db_managment.models.entities import Connection, TargetDevice, Device, Network
 from db_connection import connection
-import asyncio
-from models.entities import Network, Device, Connection
+from models.entities import Network, Device, Connection, TargetDevice
 from typing import List
 
 
