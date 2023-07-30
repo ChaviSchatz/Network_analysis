@@ -1,6 +1,7 @@
 from db_connection import connection
 from models.entities import Network, Device, Connection, TargetDevice
 from typing import List
+import asyncio
 
 
 async def create_network(network: Network):
@@ -27,9 +28,11 @@ async def insert_network(device_list: List[Device]):
                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
                 cursor.execute(query, data)
             connection.commit()
+            connection.close()
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("some error is in insert_network")
 
 
 async def insert_connections(list_of_connections: List[Connection]):
@@ -80,11 +83,11 @@ async def get_network(network_id):
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
     try:
         with connection.cursor() as cursor:
-            sql = """SELECT * FROM device WHERE network_id = (%s) """
+            sql = """SELECT * FROM device WHERE (network_id = %s) """
             params = [network_id]
             # counter = 0
             for key, value in the_filter.items():
-                sql += """ AND (%s) = (%s)"""
+                sql += """ AND (%s = %s)"""
                 params.append(key)
                 params.append(value)
 
@@ -118,6 +121,20 @@ async def get_network_by_client_id(client_id):
     except Exception:
         connection.rollback()
     connection.close()
+
+
+async def get_network_by_network_id(network_id):
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM network WHERE network_id = (%s)"""
+            cursor.execute(sql, network_id)
+            result = cursor.fetchall()
+            connection.close()
+            return result
+    except Exception:
+        connection.rollback()
+        connection.close()
+        raise Exception("Opss' it is error in get_network_by_network_id")
 
 
 # The function takes the information from the database and
@@ -157,3 +174,5 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
+
+
