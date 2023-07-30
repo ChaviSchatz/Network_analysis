@@ -40,7 +40,7 @@ class Network(BaseModel):
     client_id: int
     net_location: constr(max_length=100)
     production_date: Date
-
+    devices: Union[List[Device], None] = None
 
 class Connection(BaseModel):
     id: Union[int, None] = None

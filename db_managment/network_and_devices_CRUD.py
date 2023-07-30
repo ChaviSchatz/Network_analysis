@@ -1,7 +1,8 @@
-from db_connection import connection
-from models.entities import Network, Device, Connection, TargetDevice
+from db_managment.db_connection import connection
 from typing import List
 import asyncio
+
+from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
 
 async def create_network(network: Network):
@@ -70,14 +71,15 @@ async def get_network(network_id):
             FROM network
             JOIN device AS src_device ON src_device.network_id = network.id
             JOIN connection ON connection.src = src_device.id
-            JOIN device AS dst_device ON dst_device.id = connection.dst
-            WHERE network.id = %s"""
+            JOIN device AS dst_device ON dst_device.id = connection.dst WHERE network.id = %s"""
+
             val = network_id
             cursor.execute(query, val)
             all_data = cursor.fetchall()
-            return get_network_obj_from_data(all_data)
+            tech = get_network_obj_from_data(all_data)
+            return tech
     except Exception:
-        raise Exception("can't insert technician to db")
+        raise Exception("can't get network from db")
 
 
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
