@@ -48,9 +48,10 @@ async def update_technician(technician: Technician):
             cursor.execute(query, data)
             connection.commit()
 
-    except:
+    except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Error in update_technician")
 
 
 async def technician_verification(user_name) -> Technician | None:

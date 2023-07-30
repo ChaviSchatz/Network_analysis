@@ -15,7 +15,8 @@ async def create_network(network: Network):
             return network_id
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Error in create_network")
 
 
 async def insert_network(device_list: List[Device]):
@@ -29,7 +30,8 @@ async def insert_network(device_list: List[Device]):
             connection.commit()
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Error in insert_network")
 
 
 async def insert_connections(list_of_connections: List[Connection]):
@@ -42,6 +44,7 @@ async def insert_connections(list_of_connections: List[Connection]):
                 cursor.execute(sql, val)
             connection.commit()
     except Exception:
+        connection.close()
         raise Exception("Technician not recognized in the system.")
 
 
