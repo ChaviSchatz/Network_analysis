@@ -7,4 +7,5 @@ def map_devices(path) -> List[Device]:
 
 
 def map_connections(path) -> List[Connection]:
+    # print(12)
     pass
