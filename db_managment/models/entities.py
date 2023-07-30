@@ -1,6 +1,9 @@
 from typing import Union, List
+
 from pydantic import BaseModel, constr
 from pymysql import Date
+
+from Auth_management.auth_models import User
 
 
 class Client(BaseModel):
@@ -8,11 +11,9 @@ class Client(BaseModel):
     full_name: constr(max_length=40)
 
 
-class Technician(BaseModel):
+class Technician(User):
     id: Union[int, None] = None
-    full_name: constr(max_length=40)
     hashed_password: constr(max_length=100)
-    user_name: constr(max_length=40)
 
 
 class BaseDevice(BaseModel):

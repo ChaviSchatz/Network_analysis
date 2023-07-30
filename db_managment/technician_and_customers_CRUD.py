@@ -1,7 +1,7 @@
 from typing import Tuple, Any
-from db_connection import connection
-from models.entities import Client, Technician
-import asyncio
+
+from db_managment.db_connection import connection
+from db_managment.models.entities import Client, Technician
 
 
 async def create_client(client: Client):
@@ -21,9 +21,9 @@ async def create_client(client: Client):
 async def create_technician(technician: Technician):
     try:
         with connection.cursor() as cursor:
-            query = """INSERT into technician (full_name,hashed_password, user_name)
+            query = """INSERT into technician (full_name,hashed_password, email)
                     values (%s, %s, %s)"""
-            val = (technician.full_name, technician.hashed_password, technician.user_name)
+            val = (technician.full_name, technician.hashed_password, technician.email)
             cursor.execute(query, val)
             connection.commit()
     except Exception:
@@ -44,8 +44,8 @@ async def update_client(client: Client):
 async def update_technician(technician: Technician):
     try:
         with connection.cursor() as cursor:
-            query = "UPDATE technician SET full_name=%s, hashed_password=%s ,user_name=%s WHERE id=%s"
-            data = (technician.full_name, technician.hashed_password, technician.user_name, technician.id)
+            query = "UPDATE technician SET full_name=%s, hashed_password=%s ,email=%s WHERE id=%s"
+            data = (technician.full_name, technician.hashed_password, technician.email, technician.id)
             cursor.execute(query, data)
             connection.commit()
 
@@ -54,23 +54,23 @@ async def update_technician(technician: Technician):
     connection.close()
 
 
-async def technician_verification(user_name) -> Technician | None:
+async def technician_verification(email):
     # if find - return the technician
     # else return None
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM technician WHERE user_name = %s"
-            val = user_name
+            sql = "SELECT * FROM technician WHERE email = %s"
+            val = email
             cursor.execute(sql, val)
             result = cursor.fetchall()
             if len(result) > 0:
-                return result
+                return result[0]
             return None
     except Exception:
         raise Exception("Technician not recognized in the system.")
 
 
-async def technician_associated_with_client(technician_id, client_id):
+async def technician_associated_with_client(technician_id: str, client_id: str):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM technician_client WHERE client_id = %s AND technician_id = %s"
@@ -82,7 +82,6 @@ async def technician_associated_with_client(technician_id, client_id):
             return False
     except Exception:
         raise Exception("Technician not associated with this client.")
-
 
 
 
