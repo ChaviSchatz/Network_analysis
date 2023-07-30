@@ -1,5 +1,6 @@
-from ..db_managment.models.entities import Device, Connection
 from typing import List
+
+from db_managment.models.entities import Device, Connection
 
 
 def map_devices(path, network_id) -> List[Device]:

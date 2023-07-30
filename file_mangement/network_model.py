@@ -1,7 +1,7 @@
-import mapping_file
 import asyncio
 from db_managment.network_and_devices_CRUD import insert_network, create_network, insert_connections
 from db_managment.models.entities import Network, Device, Connection
+from file_mangement import mapping_file
 
 
 async def map_file(client_id, net_location, production_date, path):

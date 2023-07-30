@@ -42,6 +42,7 @@ class Network(BaseModel):
     production_date: Date
     devices: Union[List[Device], None] = None
 
+
 class Connection(BaseModel):
     id: Union[int, None] = None
     src: int
