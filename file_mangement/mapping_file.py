@@ -1,8 +1,7 @@
 from typing import List
 from scapy.all import rdpcap
 from db_managment.models.entities import Device, Connection
-from mac_vendor_lookup import MacLookup
-
+import requests
 
 async def map_devices(path, network_id) -> List[Device]:
     # return list of unique devices that connected to the current network
@@ -17,7 +16,7 @@ async def map_devices(path, network_id) -> List[Device]:
             e = packet["Ether"]
             mac_address = e.src
             if not(mac_address in [a.mac_address for a in devices]):
-                vendor = "MacLookup().lookup(mac_address)"
+                vendor = get_vendor(mac_address)
                 device = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
         return devices
@@ -25,8 +24,34 @@ async def map_devices(path, network_id) -> List[Device]:
         raise Exception("Failed to read the file")
 
 
+def get_vendor(mac_address):
+    # We will use an API to get the vendor details
+    url = "https://api.macvendors.com/"
+    # Use get method to fetch details
+    response = requests.get(url + mac_address, verify=False)
+    if response.status_code != 200:
+        return "None"
+        # raise Exception("[!] Invalid MAC Address!")
+    # print(response.content.decode())
+    return response.content.decode()
+
+
 def map_connections(path, network_id) -> List[Connection]:
+    # try:
+    #     scapy_cap = rdpcap(path)
+    #     packets = list(scapy_cap)
+    #     # connections = List[Device]
+    #     connections = list()
+    #     for packet in packets:
+    #         e = packet["Ether"]
+    #         mac_address = e.src
+    #         if not (mac_address in [a.mac_address for a in devices]):
+    #             vendor = "MacLookup().lookup(mac_address)"
+    #             connect = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
+    #             connections.append(connect)
+    #     return connections
+    # except Exception:
+    #     raise Exception("Failed to read the file")
     pass
 
-
-print(map_devices(r"C:\Users\user\Downloads\evidence01.pcap", 1))
+# print(map_devices(r"C:\Users\user\Downloads\evidence01.pcap", 1))
