@@ -14,7 +14,7 @@ async def create_network(network: Network):
             cursor.execute(query, data)
             connection.commit()
             network_id = cursor.lastrowid
-            connection.close()
+            # connection.close()
             return network_id
     except Exception:
         connection.rollback()
@@ -22,18 +22,34 @@ async def create_network(network: Network):
         raise Exception("Opss, an error in create_network")
 
 
+# async def insert_network(device_list: List[Device]):
+#     try:
+#         with connection.cursor() as cursor:
+#             query = """INSERT INTO device (network_id, mac_address, ip_address, vendor) VALUES (%s, %s, %s, %s)"""
+#             for d in device_list:
+#                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
+#                 print(data)
+#                 cursor.execute(query, data)
+#             connection.commit()
+#             connection.close()
+#     except Exception:
+#         connection.rollback()
+#         # connection.close()
+#         raise Exception("some error is in insert_network")
+
+
 async def insert_network(device_list: List[Device]):
     try:
         with connection.cursor() as cursor:
-            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
-                                             VALUES (%s, %s, %s, %s)"""
+            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor) VALUES (%s, %s, %s, %s)"""
+
             for d in device_list:
                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
                 cursor.execute(query, data)
             connection.commit()
-            connection.close()
+            print("Done!")
     except Exception:
-        connection.rollback()
+        # connection.rollback()
         connection.close()
         raise Exception("some error is in insert_network")
 
@@ -42,7 +58,10 @@ async def insert_connections(list_of_connections: List[Connection]):
     try:
         with connection.cursor() as cursor:
             sql = """INSERT INTO connection (src, dst, protocol)
-                   VALUES (%s, %s, %s)"""
+                   VALUES (
+                   (SELECT id FROM device WHERE mac_address = %s), 
+                   (SELECT id FROM device WHERE mac_address = %s), 
+                   %s)"""
             for con in list_of_connections:
                 val = (con.src, con.dst, con.protocol)
                 cursor.execute(sql, val)
@@ -96,7 +115,7 @@ async def get_devices_by_one_or_more_filter(network_id, the_filter):
 
             cursor.execute(sql, params)
             result = cursor.fetchall()
-            connection.close()
+            # connection.close()
             return result
     except Exception:
         connection.rollback()
@@ -110,7 +129,7 @@ async def get_connections_by_protocol_filter(protocol_filter):
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
             cursor.execute(sql, protocol_filter)
             result = cursor.fetchall()
-            connection.close()
+            # connection.close()
             return result
     except Exception:
         connection.rollback()
@@ -124,7 +143,7 @@ async def get_network_by_client_id(client_id):
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
             cursor.execute(sql, client_id)
             result = cursor.fetchall()
-            connection.close()
+            # connection.close()
             return result
     except Exception:
         connection.rollback()
