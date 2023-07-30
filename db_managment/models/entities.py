@@ -1,4 +1,5 @@
 from typing import Union, List
+
 from pydantic import BaseModel, constr
 from pymysql import Date
 

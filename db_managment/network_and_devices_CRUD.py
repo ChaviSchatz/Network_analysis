@@ -1,6 +1,7 @@
 from db_connection import connection
 from models.entities import Network, Device, Connection, TargetDevice
 from typing import List
+import asyncio
 
 
 async def create_network(network: Network):
@@ -27,9 +28,11 @@ async def insert_network(device_list: List[Device]):
                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
                 cursor.execute(query, data)
             connection.commit()
+            connection.close()
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("some error is in insert_network")
 
 
 async def insert_connections(list_of_connections: List[Connection]):
@@ -80,20 +83,22 @@ async def get_network(network_id):
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
     try:
         with connection.cursor() as cursor:
-            sql = """SELECT * FROM device WHERE network_id = (%s) """
+            sql = """SELECT * FROM device WHERE (network_id = %s) """
             params = [network_id]
             # counter = 0
             for key, value in the_filter.items():
-                sql += """ AND (%s) = (%s)"""
+                sql += """ AND (%s = %s)"""
                 params.append(key)
                 params.append(value)
 
             cursor.execute(sql, params)
             result = cursor.fetchall()
+            connection.close()
             return result
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, it is an error in get_devices_by_one_or_more_filter")
 
 
 async def get_connections_by_protocol_filter(protocol_filter):
@@ -102,10 +107,12 @@ async def get_connections_by_protocol_filter(protocol_filter):
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
             cursor.execute(sql, protocol_filter)
             result = cursor.fetchall()
+            connection.close()
             return result
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, it is an error in get_connections_by_protocol_filter")
 
 
 async def get_network_by_client_id(client_id):
@@ -114,10 +121,12 @@ async def get_network_by_client_id(client_id):
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
             cursor.execute(sql, client_id)
             result = cursor.fetchall()
+            connection.close()
             return result
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, it is an error in get_network_by_client_id")
 
 
 # The function takes the information from the database and
