@@ -1,7 +1,8 @@
-from db_connection import connection
-from models.entities import Network, Device, Connection, TargetDevice
+from db_managment.db_connection import connection
 from typing import List
 import asyncio
+
+from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
 
 async def create_network(network: Network):
@@ -13,10 +14,12 @@ async def create_network(network: Network):
             cursor.execute(query, data)
             connection.commit()
             network_id = cursor.lastrowid
+            connection.close()
             return network_id
     except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("Opss, an error in create_network")
 
 
 async def insert_network(device_list: List[Device]):
@@ -45,7 +48,7 @@ async def insert_connections(list_of_connections: List[Connection]):
                 cursor.execute(sql, val)
             connection.commit()
     except Exception:
-        raise Exception("Technician not recognized in the system.")
+        raise Exception("connections not recognized in the system.")
 
 
 def unique_set_from_list(obj_list):
