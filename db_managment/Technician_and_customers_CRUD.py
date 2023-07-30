@@ -56,13 +56,13 @@ async def update_technician(technician: Technician):
     connection.close()
 
 
-async def technician_verification(name, password):
+async def technician_verification(name: str) -> Technician:
     # if find - return the technician's id
     # else return 0
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM technician WHERE full_Name = %s AND hashed_password = %s"
-            val = (name, password)
+            val = (name)
             cursor.execute(sql, val)
             result = cursor.fetchall()
             if len(result) > 0:
@@ -72,7 +72,7 @@ async def technician_verification(name, password):
         raise Exception("Technician not recognized in the system.")
 
 
-async def technician_associated_with_client(technician_id, client_id):
+async def technician_associated_with_client(technician_id: str, client_id: str):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM technician_client WHERE client_id = %s AND technician_id = %s"

@@ -4,15 +4,16 @@ from pydantic import BaseModel, constr
 from pymysql import Date
 from typing import Union
 
+from Auth_management.auth_models import User
+
 
 class Client(BaseModel):
     id: Union[int, None] = None
     full_name: constr(max_length=40)
 
 
-class Technician(BaseModel):
+class Technician(User):
     id: Union[int, None] = None
-    full_name: constr(max_length=40)
     hashed_password: constr(max_length=100)
 
 
@@ -40,15 +41,6 @@ class Network(BaseModel):
     client_id: int
     net_location: constr(max_length=100)
     production_date: Date
-
-
-class Device(BaseModel):
-    id: Union[int, None] = None
-    network_id: Union[int, None] = None
-    mac_address: constr(min_length=15, max_length=17)
-    ip_address: constr( max_length=39)
-    vendor: constr(max_length=32)
-    devices: Union[List[Device], None] = None
 
 
 class Connection(BaseModel):
