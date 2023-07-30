@@ -9,7 +9,7 @@ async def map_file(client_id, net_location, production_date, path):
     network_id = await create_network(network)
     devices_mapping_list = await mapping_file.map_devices(path, network_id)
     # await insert_network(devices_mapping_list)
-    connections_mapping_list = mapping_file.map_connections(path)
+    connections_mapping_list = mapping_file.map_connections(path, network_id)
     # await insert_connections(connections_mapping_list)
     await asyncio.gather(insert_network(devices_mapping_list), insert_connections(connections_mapping_list))
 
