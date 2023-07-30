@@ -1,9 +1,6 @@
-import asyncio
-from typing import List
-
+from typing import Tuple, Any
 from db_connection import connection
-from models.entities import Connection, Client, Technician, TargetDevice, Network
-from models.entities import Device
+from models.entities import Client, Technician
 
 
 async def create_client(client: Client):
@@ -23,9 +20,9 @@ async def create_client(client: Client):
 async def create_technician(technician: Technician):
     try:
         with connection.cursor() as cursor:
-            query = """INSERT into technician (fullName,hashed_password)
-                    values (%s, %s)"""
-            val = (technician.full_name, technician.hashed_password)
+            query = """INSERT into technician (full_name,hashed_password, user_name)
+                    values (%s, %s, %s)"""
+            val = (technician.full_name, technician.hashed_password, technician.user_name)
             cursor.execute(query, val)
             connection.commit()
     except Exception:
@@ -46,8 +43,8 @@ async def update_client(client: Client):
 async def update_technician(technician: Technician):
     try:
         with connection.cursor() as cursor:
-            query = "UPDATE technician SET full_name=%s, hashed_password=%s WHERE id=%s"
-            data = (technician.full_name, technician.hashed_password, technician.id)
+            query = "UPDATE technician SET full_name=%s, hashed_password=%s ,user_name=%s WHERE id=%s"
+            data = (technician.full_name, technician.hashed_password, technician.user_name, technician.id)
             cursor.execute(query, data)
             connection.commit()
 
@@ -56,18 +53,18 @@ async def update_technician(technician: Technician):
     connection.close()
 
 
-async def technician_verification(name, password):
-    # if find - return the technician's id
-    # else return 0
+async def technician_verification(user_name) -> Technician | None:
+    # if find - return the technician
+    # else return None
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM technician WHERE full_Name = %s AND hashed_password = %s"
-            val = (name, password)
+            sql = "SELECT * FROM technician WHERE user_name = %s"
+            val = user_name
             cursor.execute(sql, val)
             result = cursor.fetchall()
             if len(result) > 0:
-                return result[0]['id']
-            return 0
+                return result
+            return None
     except Exception:
         raise Exception("Technician not recognized in the system.")
 
@@ -84,3 +81,7 @@ async def technician_associated_with_client(technician_id, client_id):
             return False
     except Exception:
         raise Exception("Technician not associated with this client.")
+
+
+
+
