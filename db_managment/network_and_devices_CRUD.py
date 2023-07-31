@@ -1,11 +1,10 @@
 from db_managment.db_connection import connection
 from typing import List
 import asyncio
-
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
 
-async def create_network(network: Network):
+async def create_network(network: Network) -> int:
     try:
         with connection.cursor() as cursor:
             query = """INSERT INTO network (client_id, net_location, production_date)
@@ -14,60 +13,48 @@ async def create_network(network: Network):
             cursor.execute(query, data)
             connection.commit()
             network_id = cursor.lastrowid
-            # connection.close()
             return network_id
     except Exception:
         connection.rollback()
         connection.close()
-        raise Exception("Opss, an error in create_network")
-
-
-# async def insert_network(device_list: List[Device]):
-#     try:
-#         with connection.cursor() as cursor:
-#             query = """INSERT INTO device (network_id, mac_address, ip_address, vendor) VALUES (%s, %s, %s, %s)"""
-#             for d in device_list:
-#                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
-#                 print(data)
-#                 cursor.execute(query, data)
-#             connection.commit()
-#             connection.close()
-#     except Exception:
-#         connection.rollback()
-#         # connection.close()
-#         raise Exception("some error is in insert_network")
+        raise Exception("Error in create_network")
 
 
 async def insert_network(device_list: List[Device]):
     try:
         with connection.cursor() as cursor:
-            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor) VALUES (%s, %s, %s, %s)"""
-
+            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
+                                             VALUES (%s, %s, %s, %s)"""
             for d in device_list:
                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
                 cursor.execute(query, data)
             connection.commit()
-            print("Done!")
     except Exception:
-        # connection.rollback()
+        connection.rollback()
         connection.close()
-        raise Exception("some error is in insert_network")
+        raise Exception("Error in insert_network")
 
 
 async def insert_connections(list_of_connections: List[Connection]):
     try:
         with connection.cursor() as cursor:
+            sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s"""
             sql = """INSERT INTO connection (src, dst, protocol)
-                   VALUES (
-                   (SELECT id FROM device WHERE mac_address = %s), 
-                   (SELECT id FROM device WHERE mac_address = %s), 
-                   %s)"""
+                   VALUES (%s,%s,%s)"""
             for con in list_of_connections:
-                val = (con.src, con.dst, con.protocol)
-                cursor.execute(sql, val)
+                cursor.execute(sql_get_device_id, con.src)
+                src_id = cursor.fetchall()
+                cursor.execute(sql_get_device_id, con.dst)
+                dst_id = cursor.fetchall()
+                if src_id and dst_id:
+                    val = (src_id[0].get("id"), dst_id[0].get("id"), con.protocol)
+                    # print(val)
+                    cursor.execute(sql, val)
             connection.commit()
+            print("Done!")
     except Exception:
-        raise Exception("connections not recognized in the system.")
+        connection.close()
+        raise Exception("Technician not recognized in the system.")
 
 
 def unique_set_from_list(obj_list):
@@ -105,17 +92,16 @@ async def get_network(network_id):
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
     try:
         with connection.cursor() as cursor:
-            sql = """SELECT * FROM device WHERE (network_id = %s) """
+            sql = """SELECT * FROM device WHERE network_id = (%s) """
             params = [network_id]
             # counter = 0
             for key, value in the_filter.items():
-                sql += """ AND (%s = %s)"""
+                sql += """ AND (%s) = (%s)"""
                 params.append(key)
                 params.append(value)
 
             cursor.execute(sql, params)
             result = cursor.fetchall()
-            # connection.close()
             return result
     except Exception:
         connection.rollback()
@@ -123,13 +109,12 @@ async def get_devices_by_one_or_more_filter(network_id, the_filter):
         raise Exception("Opss, it is an error in get_devices_by_one_or_more_filter")
 
 
-async def get_connections_by_protocol_filter(protocol_filter):
+async def get_connections_by_protocol_filter(protocol_filter) -> List[Connection]:
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
             cursor.execute(sql, protocol_filter)
             result = cursor.fetchall()
-            # connection.close()
             return result
     except Exception:
         connection.rollback()
@@ -137,13 +122,12 @@ async def get_connections_by_protocol_filter(protocol_filter):
         raise Exception("Opss, it is an error in get_connections_by_protocol_filter")
 
 
-async def get_network_by_client_id(client_id):
+async def get_network_by_client_id(client_id) -> Network:
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
             cursor.execute(sql, client_id)
             result = cursor.fetchall()
-            # connection.close()
             return result
     except Exception:
         connection.rollback()
@@ -188,3 +172,16 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
+
+
+# async def main():
+#     await insert_connections([Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
+#                               Connection(id=None, src='00:0c:29:1f:f8:1a', dst='00:50:56:c0:00:02', protocol='ARP'),
+#                               Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
+#                               Connection(id=None, src='00:0c:29:1f:f8:1a', dst='00:50:56:c0:00:02', protocol='TCP'),
+#                               Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
+#                               Connection(id=None, src='00:21:70:4d:4f:ae', dst='ff:ff:ff:ff:ff:ff', protocol='UDP'),
+#                               Connection(id=None, src='00:21:70:4d:4f:ae', dst='ff:ff:ff:ff:ff:ff', protocol='UDP')])
+#
+#
+# asyncio.run(main())

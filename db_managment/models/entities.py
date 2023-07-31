@@ -1,5 +1,4 @@
 from typing import Union, List
-
 from pydantic import BaseModel, constr
 from pymysql import Date
 
@@ -44,6 +43,6 @@ class Network(BaseModel):
 
 class Connection(BaseModel):
     id: Union[int, None] = None
-    src: int
-    dst: int
+    src: constr(max_length=40)
+    dst: constr(max_length=40)
     protocol: constr(max_length=15)

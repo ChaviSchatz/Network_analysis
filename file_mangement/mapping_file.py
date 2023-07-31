@@ -3,7 +3,6 @@ from scapy.all import rdpcap
 from db_managment.models.entities import Device, Connection
 import requests
 
-
 async def map_devices(path, network_id) -> List[Device]:
     # return list of unique devices that connected to the current network
     # gets path to the pcap file
@@ -17,7 +16,7 @@ async def map_devices(path, network_id) -> List[Device]:
             e = packet["Ether"]
             mac_address = e.src
             if not (mac_address in [a.mac_address for a in devices]):
-                vendor = get_vendor(mac_address)
+                vendor = await get_vendor(mac_address)
                 device = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
         return devices
@@ -25,7 +24,7 @@ async def map_devices(path, network_id) -> List[Device]:
         raise Exception("Failed to read the file")
 
 
-def get_vendor(mac_address):
+async def get_vendor(mac_address):
     # We will use an API to get the vendor details
     url = "https://api.macvendors.com/"
     # Use get method to fetch details
@@ -37,22 +36,29 @@ def get_vendor(mac_address):
     return response.content.decode()
 
 
-def map_connections(path, network_id) -> List[Connection]:
-    # try:
-    #     scapy_cap = rdpcap(path)
-    #     packets = list(scapy_cap)
-    #     # connections = List[Device]
-    #     connections = list()
-    #     for packet in packets:
-    #         e = packet["Ether"]
-    #         mac_address = e.src
-    #         if not (mac_address in [a.mac_address for a in devices]):
-    #             vendor = "MacLookup().lookup(mac_address)"
-    #             connect = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
-    #             connections.append(connect)
-    #     return connections
-    # except Exception:
-    #     raise Exception("Failed to read the file")
-    pass
+async def map_connections(path) -> List[Connection]:
+    try:
+        scapy_cap = rdpcap(path)
+        packets = list(scapy_cap)
+        connections = list()
+        for packet in packets:
+            e = packet["Ether"]
+            connect = Connection(src=e.src,dst=e.dst,protocol=get_protocol(e))
+            connections.append(connect)
+        return connections
+    except Exception:
+        raise Exception("Failed to read the file")
 
-# print(map_devices(r"C:\Users\user\Downloads\evidence01.pcap", 1))
+
+def get_protocol(packet):
+    if 'TCP' in packet:
+        protocol = packet['TCP'].name
+    elif 'UDP' in packet:
+        protocol = packet['UDP'].name
+    elif 'ARP' in packet:
+        protocol = packet['ARP'].name
+    elif 'ICMP' in packet:
+        protocol = packet['ICMP'].name
+    else:
+        protocol = 'Unknown'
+    return protocol
