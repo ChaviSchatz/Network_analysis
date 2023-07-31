@@ -95,9 +95,6 @@ async def authorized_technician(technician_id, client_id) -> bool:
             data = (technician_id, client_id)
             cursor.execute(sql, data)
             result = cursor.fetchall()
-            # if result.get("technician_id") == technician_id:
-            #     return True
-            # return False
             if result:
                 return True
             return False
@@ -105,7 +102,3 @@ async def authorized_technician(technician_id, client_id) -> bool:
         connection.rollback()
         connection.close()
         raise Exception("Opss, it is an error in authorized_technician")
-
-
-
-

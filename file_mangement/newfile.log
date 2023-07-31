@@ -1,0 +1,6 @@
+2023-07-31 19:59:52,159 Using proactor: IocpProactor
+2023-07-31 19:59:52,770 This network (1, 'Haifa', datetime.date(2023, 7, 30)) has been created
+2023-07-31 20:00:39,588 Starting new HTTPS connection (1): api.macvendors.com:443
+2023-07-31 20:00:40,298 https://api.macvendors.com:443 "GET /00:23:8b:82:1f:4a HTTP/1.1" 200 20
+2023-07-31 20:00:54,065 Starting new HTTPS connection (1): api.macvendors.com:443
+2023-07-31 20:00:54,824 https://api.macvendors.com:443 "GET /70:5a:b6:51:d7:b2 HTTP/1.1" 200 39

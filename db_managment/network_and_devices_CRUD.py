@@ -1,7 +1,13 @@
 from db_managment.db_connection import connection
 from typing import List
-
+import logging
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
+
+logging.basicConfig(filename="newfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 async def create_network(network: Network) -> int:
@@ -12,6 +18,7 @@ async def create_network(network: Network) -> int:
             data = (network.client_id, network.net_location, network.production_date)
             cursor.execute(query, data)
             connection.commit()
+            logger.info(f"This network {data} has been created")
             network_id = cursor.lastrowid
             return network_id
     except Exception:
@@ -29,6 +36,7 @@ async def insert_network(device_list: List[Device]):
                 data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
                 cursor.execute(query, data)
             connection.commit()
+            logger.info(f"{len(device_list)} devices entered the network")
     except Exception:
         connection.rollback()
         connection.close()
@@ -51,6 +59,7 @@ async def insert_connections(list_of_connections: List[Connection]):
                     # print(val)
                     cursor.execute(sql, val)
             connection.commit()
+            logger.info(f"{len(list_of_connections)} connections entered the network")
             print("Done!")
     except Exception:
         connection.close()
@@ -99,9 +108,9 @@ async def get_devices_by_one_or_more_filter(network_id, the_filter):
                 sql += """ AND (%s) = (%s)"""
                 params.append(key)
                 params.append(value)
-
             cursor.execute(sql, params)
             result = cursor.fetchall()
+            logger.info(f"there are {len(result)} network(s) with the required filters")
             return result
     except Exception:
         connection.rollback()
@@ -115,6 +124,7 @@ async def get_connections_by_protocol_filter(protocol_filter) -> List[Connection
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
             cursor.execute(sql, protocol_filter)
             result = cursor.fetchall()
+            logger.info(f"There are {len(result)} connections with the required protocol filter")
             return result
     except Exception:
         connection.rollback()
@@ -128,6 +138,7 @@ async def get_network_by_client_id(client_id) -> Network:
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
             cursor.execute(sql, client_id)
             result = cursor.fetchall()
+            logger.info(f"There are {len(result)} networks to client ID {client_id}")
             return result
     except Exception:
         connection.rollback()
@@ -172,7 +183,6 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
-
 
 # async def main():
 #     await insert_connections([Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
