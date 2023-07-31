@@ -13,9 +13,10 @@ async def create_client(client: Client):
             data = client.full_name
             cursor.execute(query, data)
             connection.commit()
-    except:
+    except Exception:
         connection.rollback()
-    connection.close()
+        connection.close()
+        raise Exception("An error in create_client")
 
 
 async def create_technician(technician: Technician):
@@ -71,7 +72,7 @@ async def technician_verification(email):
         raise Exception("Technician not recognized in the system.")
 
 
-async def technician_associated_with_client(technician_id: str, client_id: str):
+async def technician_associated_with_client(technician_id: str, client_id: str) -> bool:
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM technician_client WHERE client_id = %s AND technician_id = %s"
@@ -82,7 +83,28 @@ async def technician_associated_with_client(technician_id: str, client_id: str):
                 return True
             return False
     except Exception:
+        connection.rollback()
+        connection.close()
         raise Exception("Technician not associated with this client.")
+
+
+async def authorized_technician(technician_id, client_id) -> bool:
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT * FROM technician_client WHERE technician_id = (%s) And client_id = (%s)"""
+            data = (technician_id, client_id)
+            cursor.execute(sql, data)
+            result = cursor.fetchall()
+            # if result.get("technician_id") == technician_id:
+            #     return True
+            # return False
+            if result:
+                return True
+            return False
+    except Exception:
+        connection.rollback()
+        connection.close()
+        raise Exception("Opss, it is an error in authorized_technician")
 
 
 

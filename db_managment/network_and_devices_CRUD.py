@@ -1,6 +1,6 @@
 from db_managment.db_connection import connection
 from typing import List
-import asyncio
+
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
 
