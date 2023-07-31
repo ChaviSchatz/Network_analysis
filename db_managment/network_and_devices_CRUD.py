@@ -1,13 +1,14 @@
-from db_managment.db_connection import connection
-from typing import List
 import logging
+from typing import List
+from db_managment.db_connection import connection
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
+
 
 logging.basicConfig(filename="newfile.log",
                     format='%(asctime)s %(message)s',
                     filemode='w')
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 async def create_network(network: Network) -> int:
@@ -49,15 +50,18 @@ async def insert_connections(list_of_connections: List[Connection]):
             sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s"""
             sql = """INSERT INTO connection (src, dst, protocol)
                    VALUES (%s,%s,%s)"""
+            i = 0
             for con in list_of_connections:
+                if i % 100 == 0:
+                    print(i)
                 cursor.execute(sql_get_device_id, con.src)
                 src_id = cursor.fetchall()
                 cursor.execute(sql_get_device_id, con.dst)
                 dst_id = cursor.fetchall()
                 if src_id and dst_id:
                     val = (src_id[0].get("id"), dst_id[0].get("id"), con.protocol)
-                    # print(val)
                     cursor.execute(sql, val)
+                i += 1
             connection.commit()
             logger.info(f"{len(list_of_connections)} connections entered the network")
             print("Done!")
@@ -88,14 +92,15 @@ async def get_network(network_id):
             FROM network
             JOIN device AS src_device ON src_device.network_id = network.id
             JOIN connection ON connection.src = src_device.id
-            JOIN device AS dst_device ON dst_device.id = connection.dst
-            WHERE network.id = %s"""
+            JOIN device AS dst_device ON dst_device.id = connection.dst WHERE network.id = %s"""
+
             val = network_id
             cursor.execute(query, val)
             all_data = cursor.fetchall()
-            return get_network_obj_from_data(all_data)
+            tech = get_network_obj_from_data(all_data)
+            return tech
     except Exception:
-        raise Exception("can't insert technician to db")
+        raise Exception("can't get network from db")
 
 
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
@@ -183,15 +188,3 @@ def get_network_obj_from_data(data_from_db):
     # give the network the devices
     target_network.devices = devices
     return target_network
-
-# async def main():
-#     await insert_connections([Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
-#                               Connection(id=None, src='00:0c:29:1f:f8:1a', dst='00:50:56:c0:00:02', protocol='ARP'),
-#                               Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
-#                               Connection(id=None, src='00:0c:29:1f:f8:1a', dst='00:50:56:c0:00:02', protocol='TCP'),
-#                               Connection(id=None, src='00:50:56:c0:00:02', dst='00:0c:29:1f:f8:1a', protocol='TCP'),
-#                               Connection(id=None, src='00:21:70:4d:4f:ae', dst='ff:ff:ff:ff:ff:ff', protocol='UDP'),
-#                               Connection(id=None, src='00:21:70:4d:4f:ae', dst='ff:ff:ff:ff:ff:ff', protocol='UDP')])
-#
-#
-# asyncio.run(main())

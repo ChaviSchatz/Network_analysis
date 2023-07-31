@@ -1,4 +1,5 @@
 from typing import Union, List
+
 from pydantic import BaseModel, constr
 from pymysql import Date
 
@@ -18,7 +19,7 @@ class Technician(User):
 class BaseDevice(BaseModel):
     mac_address: constr(min_length=15, max_length=17)
     ip_address: constr(min_length=7, max_length=39)
-    vendor: constr(max_length=32)
+    vendor: constr(max_length=320)
 
     def __eq__(self, other):
         return self.mac_address == other.mac_address
@@ -39,6 +40,7 @@ class Network(BaseModel):
     client_id: int
     net_location: constr(max_length=100)
     production_date: Date
+    devices: Union[List[Device], None] = None
 
 
 class Connection(BaseModel):
