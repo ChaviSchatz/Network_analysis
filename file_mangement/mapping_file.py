@@ -10,7 +10,6 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
     # gets the network id that this file got and add it to each device
     try:
         packets = list(scapy_cap)
-        # devices = List[Device]
         devices = list()
         for packet in packets:
             e = packet["Ether"]
@@ -19,6 +18,7 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
                 vendor = await get_vendor(mac_address)
                 device = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
+        print(devices)
         return devices
     except Exception:
         raise Exception("Failed to read the file")
@@ -38,12 +38,14 @@ async def get_vendor(mac_address):
 async def map_connections(scapy_cap) -> List[Connection]:
     try:
         packets = list(scapy_cap)
-        connections = set()
+        connections = list()
         for packet in packets:
             e = packet["Ether"]
             connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
-            connections.add(connect)
-        return list(connections)
+            if connect not in connections:
+                connections.append(connect)
+        print(connections)
+        return connections
     except Exception:
         raise Exception("Failed to read the file")
 
