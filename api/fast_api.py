@@ -1,4 +1,5 @@
 import uvicorn
+
 from fastapi import FastAPI
 
 from api.auth_router import auth_router

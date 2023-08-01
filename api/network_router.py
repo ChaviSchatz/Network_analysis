@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi.responses import HTMLResponse
 from pymysql import Date
 from scapy.libs.six import BytesIO
 from starlette import status
 from fastapi import File, UploadFile
 
-from Auth_management.auth import get_current_active_user, get_permissions
+from Auth_management.auth import get_current_active_user  # , get_permissions
 from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
+from visualization.visual_network import get_network_table
 
 BASEURL = "/networks"
 networks = APIRouter(
@@ -22,6 +24,16 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
                              detail="Unauthorized")
 
     return await get_network_by_id(int(id))
+
+
+@networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
+async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
+    import json
+    if not current_user:
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
+    json_network = await get_network_by_id(int(id))
+    return get_network_table(json.dumps(json_network))
 
 
 @networks.post(BASEURL)
