@@ -4,12 +4,11 @@ from db_managment.models.entities import Device, Connection
 import requests
 
 
-async def map_devices(path, network_id) -> List[Device]:
+async def map_devices(scapy_cap, network_id) -> List[Device]:
     # return list of unique devices that connected to the current network
     # gets path to the pcap file
     # gets the network id that this file got and add it to each device
     try:
-        scapy_cap = rdpcap(path)
         packets = list(scapy_cap)
         # devices = List[Device]
         devices = list()
@@ -37,9 +36,8 @@ async def get_vendor(mac_address):
     return response.content.decode()
 
 
-async def map_connections(path) -> List[Connection]:
+async def map_connections(scapy_cap) -> List[Connection]:
     try:
-        scapy_cap = rdpcap(path)
         packets = list(scapy_cap)
         connections = set()
         for packet in packets:

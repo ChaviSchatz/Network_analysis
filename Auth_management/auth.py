@@ -120,5 +120,5 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 async def get_permissions(net_id, current_user: User):
-    # needs to check if this user can get data on this network - by it id
+
     return False
