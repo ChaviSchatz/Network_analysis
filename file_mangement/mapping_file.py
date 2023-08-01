@@ -1,4 +1,3 @@
-import re
 from typing import List
 from db_managment.models.entities import Device, Connection
 import requests
@@ -13,7 +12,6 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
     # gets the network id that this file got and add it to each device
     try:
         packets = list(scapy_cap)
-        # devices = List[Device]
         devices = list()
         for packet in packets:
             if packet.haslayer(IP):
@@ -32,13 +30,14 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
 async def get_vendor(mac_address):
     # We will use an API to get the vendor details
     url = "https://api.macvendors.com/"
-    # Use get method to fetch details
-    response = requests.get(url + mac_address, verify=False)
-    if response.status_code != 200:
+    try:
+        response = requests.get(url + mac_address, verify=False)
+        if response.status_code != 200:
+            return "Unknown"
+            # raise Exception("[!] Invalid MAC Address!")
+        return response.content.decode()
+    except:
         return "Unknown"
-        # raise Exception("[!] Invalid MAC Address!")
-    return response.content.decode()
-
 
 
 async def map_connections(scapy_cap) -> List[Connection]:
