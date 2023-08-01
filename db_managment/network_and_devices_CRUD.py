@@ -3,7 +3,6 @@ from typing import List
 from db_managment.db_connection import connection
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
-
 logging.basicConfig(filename="newfile.log",
                     format='%(asctime)s %(message)s',
                     filemode='w')

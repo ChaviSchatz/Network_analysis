@@ -7,7 +7,7 @@ def test_map_connections():
 
 def test_map_devices():
     # # assert map_devices(r"C:\Users\This User\Downloads\evidence01.pcap", 1)
-    # # with open("myfile.txt", "w") as f:
+    # # with open("my_file.txt", "w") as f:
     # #     f.write("line1\nline2\nline3")
     # # assert map_devices(f, 1) == ["line1\n", "line2\n", "line3"]
     #
