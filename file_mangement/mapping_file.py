@@ -32,7 +32,6 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
                 #TODO: ip addres...
                 device = Device(mac_address=mac_address, ip_address=e.src, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
-        print(devices)
         return devices
     except Exception:
         raise Exception("Failed to read the file")
