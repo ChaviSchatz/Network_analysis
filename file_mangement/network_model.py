@@ -6,11 +6,13 @@ from file_mangement import mapping_file
 
 async def map_file(client_id, net_location, production_date, path):
     network = Network(client_id=client_id, net_location=net_location, production_date=production_date)
+    # insert the new network to the db
     network_id = await create_network(network)
     devices_mapping_list = await mapping_file.map_devices(path, network_id)
+    # insert the network's devices to the db
     await insert_network(devices_mapping_list)
     connections_mapping_list = await mapping_file.map_connections(path)
-    # print(connections_mapping_list)
+    # insert the connections
     await insert_connections(list(connections_mapping_list))
     # await asyncio.gather(insert_network(devices_mapping_list), insert_connections(connections_mapping_list))
 

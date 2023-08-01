@@ -31,9 +31,8 @@ async def get_vendor(mac_address):
     # Use get method to fetch details
     response = requests.get(url + mac_address, verify=False)
     if response.status_code != 200:
-        return "None"
+        return "Unknown"
         # raise Exception("[!] Invalid MAC Address!")
-    # print(response.content.decode())
     return response.content.decode()
 
 
@@ -41,15 +40,12 @@ async def map_connections(path) -> List[Connection]:
     try:
         scapy_cap = rdpcap(path)
         packets = list(scapy_cap)
-        connections = list()
-        # connections = set()
+        connections = set()
         for packet in packets:
             e = packet["Ether"]
             connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
-            connections.append(connect)
-            # connections.add(connect)
-        return connections
-        # return list(connections)
+            connections.add(connect)
+        return list(connections)
     except Exception:
         raise Exception("Failed to read the file")
 

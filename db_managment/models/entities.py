@@ -48,3 +48,6 @@ class Connection(BaseModel):
     src: constr(max_length=40)
     dst: constr(max_length=40)
     protocol: constr(max_length=15)
+
+    def __eq__(self, other):
+        return self.src == other.src and self.dst == other.dst and self.protocol == other.protocol
