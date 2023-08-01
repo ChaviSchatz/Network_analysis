@@ -8,20 +8,20 @@ from scapy.all import rdpcap
 async def map_file(client_id, net_location, production_date, path):
     network = Network(client_id=client_id, net_location=net_location, production_date=production_date)
     # insert the new network to the db
-    network_id = await create_network(network)
+    network_id = 1#await create_network(network)
     scapy_cap = rdpcap(path)
     devices_mapping_list = await mapping_file.map_devices(scapy_cap, network_id)
     # insert the network's devices to the db
-    await insert_network(devices_mapping_list)
+    # await insert_network(devices_mapping_list)
     connections_mapping_list = await mapping_file.map_connections(scapy_cap)
     # insert the connections
-    await insert_connections(list(connections_mapping_list))
+    # await insert_connections(list(connections_mapping_list))
     # await asyncio.gather(insert_network(devices_mapping_list), insert_connections(connections_mapping_list))
 
 
-# async def main():
-#     r = await map_file(2, "NYC", "2023-05-12", r"C:\Users\This User\Downloads\evidence04.pcap")
-#     print(r)
-#
-#
-# asyncio.run(main())
+async def main():
+    r = await map_file(2, "NYC", "2023-05-12", r"C:\Users\user\Downloads\evidence01.pcap")
+    print(r)
+
+
+asyncio.run(main())
