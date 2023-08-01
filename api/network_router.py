@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, Form, Body
 from pymysql import Date
 from scapy.libs.six import BytesIO
@@ -26,7 +25,8 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
 
 
 @networks.post(BASEURL)
-async def create_network_model_from_file(file: UploadFile = File(...), client_id: int = Form(...), net_location: str = Form(...),
+async def create_network_model_from_file(file: UploadFile = File(...), client_id: int = Form(...),
+                                         net_location: str = Form(...),
                                          production_date: Date = Form(...),
                                          current_user: User = Depends(get_current_active_user)):
     if not current_user:
