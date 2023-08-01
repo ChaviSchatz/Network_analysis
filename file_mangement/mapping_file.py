@@ -13,6 +13,7 @@ async def map_devices(scapy_cap, network_id) -> List[Device]:
     # gets the network id that this file got and add it to each device
     try:
         packets = list(scapy_cap)
+        # devices = List[Device]
         devices = list()
         for packet in packets:
             if packet.haslayer(IP):
@@ -38,13 +39,6 @@ async def get_vendor(mac_address):
         # raise Exception("[!] Invalid MAC Address!")
     return response.content.decode()
 
-
-def get_IP_address(packet):
-    # declaring the regex pattern for IP addresses
-    pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
-    ip = pattern.search(packet)
-    print(ip)
-    return ip
 
 
 async def map_connections(scapy_cap) -> List[Connection]:
