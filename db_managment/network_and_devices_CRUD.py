@@ -43,7 +43,7 @@ async def insert_devices(device_list: List[Device]):
         raise Exception("Error in insert_network")
 
 
-async def insert_connections(list_of_connections: List[Connection], network_id):
+async def insert_connections(list_of_connections: List[Connection], network_id: int):
     try:
         with connection.cursor() as cursor:
             sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s AND network_id = %s"""
@@ -69,7 +69,7 @@ async def insert_connections(list_of_connections: List[Connection], network_id):
         raise Exception("Error in insert_connections.")
 
 
-def unique_set_from_list(obj_list):
+def unique_set_from_list(obj_list: list):
     unique_dict = {}
     for obj in obj_list:
         key = obj.model_dump_json()  # Convert the Pydantic object to its JSON representation
@@ -79,7 +79,7 @@ def unique_set_from_list(obj_list):
 
 
 # The function returns a detailed network model
-async def get_network(network_id):
+async def get_network(network_id: int):
     try:
         with connection.cursor() as cursor:
             query = """SELECT network.id AS network_id, network.client_id,
@@ -102,7 +102,7 @@ async def get_network(network_id):
         raise Exception("can't get network from db.")
 
 
-async def get_devices_by_one_or_more_filter(network_id, the_filter):
+async def get_devices_by_one_or_more_filter(network_id: int, the_filter: dict) -> List[Device]:
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM device WHERE network_id = (%s) """
@@ -122,7 +122,7 @@ async def get_devices_by_one_or_more_filter(network_id, the_filter):
         raise Exception("Opss, it is an error in get_devices_by_one_or_more_filter")
 
 
-async def get_connections_by_protocol_filter(protocol_filter) -> List[Connection]:
+async def get_connections_by_protocol_filter(protocol_filter: dict) -> List[Connection]:
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM connection WHERE protocol = (%s)"""
@@ -136,7 +136,7 @@ async def get_connections_by_protocol_filter(protocol_filter) -> List[Connection
         raise Exception("Opss, it is an error in get_connections_by_protocol_filter")
 
 
-async def get_networks_by_client_id(client_id) -> List[Network]:
+async def get_networks_by_client_id(client_id: int) -> List[Network]:
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM network WHERE client_id = (%s)"""
@@ -150,7 +150,7 @@ async def get_networks_by_client_id(client_id) -> List[Network]:
         raise Exception("Opss, it is an error in get_network_by_client_id")
 
 
-def get_network_obj_from_data(data_from_db):
+def get_network_obj_from_data(data_from_db: list):
     # The function takes the information from the database and
     # transforms it into a network object after mapping the data
     if len(data_from_db) == 0:

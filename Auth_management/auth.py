@@ -65,9 +65,9 @@ async def get_user(email: str) -> Technician | None:
     return technician
 
 
-#     get username and password and needs to check if its exists in db and
-#     if the hash password verify to the password he enters
 async def authenticate_user(email: str, password: str, client_id: int):
+    #     get username and password and needs to check if its exists in db and
+    #     if the hash password verify to the password he enters
     user: Technician = await get_user(email)
     if not user:
         return None
@@ -118,7 +118,6 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-
-async def get_permissions(net_id, current_user: User):
-
-    return False
+# async def get_permissions(net_id, current_user: User):
+#
+#     return False

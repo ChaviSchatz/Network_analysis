@@ -97,7 +97,7 @@ async def technician_associated_with_client(technician_id: str, client_id: str) 
         raise Exception("Technician not associated with this client.")
 
 
-async def authorized_technician(technician_id, client_id) -> bool:
+async def authorized_technician(technician_id: int, client_id: int) -> bool:
     # if a technician is authorized to treat the client  - return the true
     # else return false
     try:

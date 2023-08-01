@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 
 from Auth_management.auth import get_current_active_user
 from Auth_management.auth_models import User
-from db_managment.models.entities import Technician
 
 technicians = APIRouter(
     tags=["technicians"],

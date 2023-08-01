@@ -9,13 +9,13 @@ from controllers.device_controller import get_devices_by_network_id
 from db_managment.models.entities import Network, Device
 
 BASEURL = "/devices"
-devices = APIRouter(
-    responses={404: {"description": "not found"}})
+devices = APIRouter(responses={404: {"description": "not found"}})
 
 
 @devices.get(BASEURL + "/{network_id}", response_model=List[Device] | None)
 async def get_devices(network_id: str, mac: str | None = None, vendor: str | None = None,
                       current_user: User = Depends(get_current_active_user)):
+    # built the filter json
     filters = {}
     if mac:
         filters["mac"] = mac
@@ -24,5 +24,4 @@ async def get_devices(network_id: str, mac: str | None = None, vendor: str | Non
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-    res = await get_devices_by_network_id(int(network_id), filters)
-    return res
+    return await get_devices_by_network_id(int(network_id), filters)
