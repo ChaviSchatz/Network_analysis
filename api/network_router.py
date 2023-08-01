@@ -4,7 +4,7 @@ from scapy.libs.six import BytesIO
 from starlette import status
 from fastapi import File, UploadFile
 
-from Auth_management.auth import get_current_active_user, get_permissions
+from Auth_management.auth import get_current_active_user
 from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network

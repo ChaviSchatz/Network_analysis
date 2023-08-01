@@ -24,13 +24,15 @@ async def map_devices(scapy_cap, network_id: int) -> List[Device]:
         packets = list(scapy_cap)
         # devices = List[Device]
         devices = list()
+        pattern = "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
         for packet in packets:
             e = packet["Ether"]
             mac_address = e.src
             if not (mac_address in [a.mac_address for a in devices]):
+                result = re.search(pattern, str(e))
                 vendor = await get_vendor(mac_address)
-                # TODO: ip addres...
-                device = Device(mac_address=mac_address, ip_address=e.src, vendor=str(vendor), network_id=network_id)
+                src_ip = result.group()
+                device = Device(mac_address=mac_address, ip_address=src_ip, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
         return devices
     except Exception:

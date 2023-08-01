@@ -12,4 +12,4 @@ app.include_router(technicians)
 app.include_router(networks)
 app.include_router(devices)
 
-uvicorn.run(app, host="127.0.0.1", port=3000)
+uvicorn.run(app, host="127.0.0.1", port=3001)
