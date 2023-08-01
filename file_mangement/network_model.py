@@ -5,7 +5,8 @@ from file_mangement import mapping_file
 from scapy.all import rdpcap
 
 
-async def map_file(client_id, net_location, production_date, path):
+async def map_file(client_id, net_location, production_date, file):
+    path = file
     network = Network(client_id=client_id, net_location=net_location, production_date=production_date)
     # insert the new network to the db
     network_id = 1#await create_network(network)
