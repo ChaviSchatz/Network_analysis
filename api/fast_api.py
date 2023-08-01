@@ -1,6 +1,8 @@
 import uvicorn
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from api.auth_router import auth_router
 from api.device_router import devices
@@ -8,6 +10,9 @@ from api.network_router import networks
 from api.technician_router import technicians
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 app.include_router(auth_router)
 app.include_router(technicians)
 app.include_router(networks)
