@@ -2,8 +2,8 @@ from db_managment.network_and_devices_CRUD import get_network_by_client_id, \
     get_devices_by_one_or_more_filter, get_connections_by_protocol_filter, get_network
 
 
-async def get_networks_by_client_id(client_id):
-    return await get_network_by_client_id(client_id)
+# async def get_networks_by_client_id(client_id):
+#     return await get_network_by_client_id(client_id)
 
 
 async def get_devices_by_network_id_and_more_filters(network_id, filters):

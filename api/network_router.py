@@ -11,11 +11,12 @@ from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
 
+BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
 
 
-@networks.get("/networks/{id}", response_model=Network | None)
+@networks.get(BASEURL + "/{id}", response_model=Network | None)
 async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -24,7 +25,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return await get_network_by_id(int(id))
 
 
-@networks.post("/networks")
+@networks.post(BASEURL)
 async def create_network_model_from_file(file: UploadFile = File(...), client_id: int = Form(...), net_location: str = Form(...),
                                          production_date: Date = Form(...),
                                          current_user: User = Depends(get_current_active_user)):

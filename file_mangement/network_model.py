@@ -14,10 +14,3 @@ async def map_file(client_id, net_location, production_date, path):
     await insert_connections(list(connections_mapping_list))
     # await asyncio.gather(insert_network(devices_mapping_list), insert_connections(connections_mapping_list))
 
-
-async def main():
-    r = await map_file(2, "NYC", "2023-05-12", r"C:\Users\This User\Downloads\evidence04.pcap")
-    print(r)
-
-
-asyncio.run(main())
