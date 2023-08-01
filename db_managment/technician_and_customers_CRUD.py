@@ -84,5 +84,5 @@ async def technician_associated_with_client(technician_id, client_id):
         raise Exception("Technician not associated with this client.")
 
 
-
+# async def authorized_technician_for_network()
 
