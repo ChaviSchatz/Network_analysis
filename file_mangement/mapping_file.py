@@ -1,3 +1,33 @@
+import re
+from typing import List
+from db_managment.models.entities import Device, Connection
+import requests
+import urllib3
+from scapy.layers.inet import IP
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
+async def map_devices(scapy_cap, network_id) -> List[Device]:
+    # return list of unique devices that connected to the current network
+    # gets path to the pcap file
+    # gets the network id that this file got and add it to each device
+    try:
+        packets = list(scapy_cap)
+        devices = list()
+        for packet in packets:
+            if packet.haslayer(IP):
+                mac_address = packet["Ether"].src
+                if not (mac_address in [a.mac_address for a in devices]):
+                    vendor = await get_vendor(mac_address)
+                    ip_address = packet[IP].src
+                    device = Device(mac_address=mac_address, ip_address=ip_address, vendor=str(vendor),network_id=network_id)
+                    devices.append(device)
+        print(devices)
+        return devices
+    except Exception:
+        raise Exception("Failed to read the file")
+
+
 async def get_vendor(mac_address):
     # We will use an API to get the vendor details
     url = "https://api.macvendors.com/"
@@ -8,34 +38,6 @@ async def get_vendor(mac_address):
         # raise Exception("[!] Invalid MAC Address!")
     return response.content.decode()
 
-import re
-from typing import List
-from db_managment.models.entities import Device, Connection
-
-
-import requests
-
-
-async def map_devices(scapy_cap, network_id) -> List[Device]:
-    # return list of unique devices that connected to the current network
-    # gets path to the pcap file
-    # gets the network id that this file got and add it to each device
-    try:
-        packets = list(scapy_cap)
-        # devices = List[Device]
-        devices = list()
-        for packet in packets:
-            e = packet["Ether"]
-            mac_address = e.src
-            if not (mac_address in [a.mac_address for a in devices]):
-                vendor = await get_vendor(mac_address)
-                #TODO: ip addres...
-                device = Device(mac_address=mac_address, ip_address=e.src, vendor=str(vendor), network_id=network_id)
-                devices.append(device)
-        print(devices)
-        return devices
-    except Exception:
-        raise Exception("Failed to read the file")
 
 def get_IP_address(packet):
     # declaring the regex pattern for IP addresses
