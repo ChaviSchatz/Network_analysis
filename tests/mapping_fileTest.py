@@ -2,7 +2,7 @@ from file_mangement.mapping_file import map_connections, map_devices
 
 
 def test_map_connections():
-    assert map_connections(r"C:\Users\This User\Downloads\evidence01.pcap")
+    assert map_connections(r"C:\Users\user\Downloads\evidence01.pcap")
 
 
 def test_map_devices():
@@ -21,4 +21,4 @@ def test_map_devices():
     #
     # with open('test-mem.pcap', 'wb') as fp:
     #     fp.write(buf.read())
-    assert map_devices(r"C:\Users\This User\Downloads\evidence01.pcap", 1)
+    assert map_devices(r"C:\Users\user\Downloads\evidence01.pcap", 1)
