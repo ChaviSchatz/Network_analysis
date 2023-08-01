@@ -1,7 +1,9 @@
 from typing import List
+
 from scapy.all import rdpcap
 from db_managment.models.entities import Device, Connection
 import requests
+
 
 async def map_devices(path, network_id) -> List[Device]:
     # return list of unique devices that connected to the current network
@@ -22,6 +24,7 @@ async def map_devices(path, network_id) -> List[Device]:
         return devices
     except Exception:
         raise Exception("Failed to read the file")
+
 
 from db_managment.models.entities import Device, Connection
 
@@ -45,7 +48,7 @@ async def map_connections(path) -> List[Connection]:
         connections = list()
         for packet in packets:
             e = packet["Ether"]
-            connect = Connection(src=e.src,dst=e.dst,protocol=get_protocol(e))
+            connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
             connections.append(connect)
         return connections
     except Exception:
