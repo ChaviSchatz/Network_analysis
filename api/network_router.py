@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, Form, Body
 from pymysql import Date
 from scapy.libs.six import BytesIO

@@ -66,7 +66,7 @@ async def insert_connections(list_of_connections: List[Connection]):
             print("Done!")
     except Exception:
         connection.close()
-        raise Exception("Technician not recognized in the system.")
+        raise Exception("Error in insert_connections.")
 
 
 def unique_set_from_list(obj_list):
@@ -99,7 +99,7 @@ async def get_network(network_id):
             tech = get_network_obj_from_data(all_data)
             return tech
     except Exception:
-        raise Exception("can't get network from db")
+        raise Exception("can't get network from db.")
 
 
 async def get_devices_by_one_or_more_filter(network_id, the_filter):
@@ -150,9 +150,10 @@ async def get_network_by_client_id(client_id) -> Network:
         raise Exception("Opss, it is an error in get_network_by_client_id")
 
 
-# The function takes the information from the database and
-# transforms it into a network object after mapping the data
+
 def get_network_obj_from_data(data_from_db):
+    # The function takes the information from the database and
+    # transforms it into a network object after mapping the data
     if len(data_from_db) == 0:
         return None
     # create the network obj
