@@ -18,6 +18,7 @@ async def map_devices(path, network_id) -> List[Device]:
             mac_address = e.src
             if not (mac_address in [a.mac_address for a in devices]):
                 vendor = await get_vendor(mac_address)
+                #TODO: ip addres...
                 device = Device(mac_address=mac_address, ip_address=e.dst, vendor=str(vendor), network_id=network_id)
                 devices.append(device)
         return devices
@@ -44,7 +45,8 @@ async def map_connections(path) -> List[Connection]:
         for packet in packets:
             e = packet["Ether"]
             connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
-            connections.add(connect)
+            if connect not in connections:
+              connections.add(connect)
         return list(connections)
     except Exception:
         raise Exception("Failed to read the file")

@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Form, Body
+from fastapi import APIRouter, Depends, HTTPException, Form, Body, File, UploadFile
 from pymysql import Date
 from starlette import status
-from fastapi import File, UploadFile
 
 from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
