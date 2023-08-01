@@ -1,7 +1,13 @@
+import logging
 from typing import Tuple, Any
-
 from db_managment.db_connection import connection
 from db_managment.models.entities import Client, Technician
+
+logging.basicConfig(filename="newfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 async def create_client(client: Client):
@@ -13,6 +19,7 @@ async def create_client(client: Client):
             data = client.full_name
             cursor.execute(query, data)
             connection.commit()
+            logger.info(f"This client {data} has been created")
     except Exception:
         connection.rollback()
         connection.close()
@@ -24,9 +31,10 @@ async def create_technician(technician: Technician):
         with connection.cursor() as cursor:
             query = """INSERT into technician (full_name,hashed_password, email)
                     values (%s, %s, %s)"""
-            val = (technician.full_name, technician.hashed_password, technician.email)
-            cursor.execute(query, val)
+            data = (technician.full_name, technician.hashed_password, technician.email)
+            cursor.execute(query, data)
             connection.commit()
+            logger.info(f"This technician {data} has been created")
     except Exception:
         raise Exception("can't insert technician to db")
 
@@ -35,9 +43,10 @@ async def update_client(client: Client):
     try:
         with connection.cursor() as cursor:
             sql = "UPDATE client SET full_name=%s WHERE id=%s"
-            val = (client.full_name, client.id)
-            cursor.execute(sql, val)
+            data = (client.full_name, client.id)
+            cursor.execute(sql, data)
             connection.commit()
+            logger.info(f"This client {data} has been updated")
     except Exception:
         raise Exception("can't update client to db")
 
@@ -49,7 +58,7 @@ async def update_technician(technician: Technician):
             data = (technician.full_name, technician.hashed_password, technician.email, technician.id)
             cursor.execute(query, data)
             connection.commit()
-
+            logger.info(f"This technician {data} has been updated")
     except Exception:
         connection.rollback()
         connection.close()
@@ -89,15 +98,14 @@ async def technician_associated_with_client(technician_id: str, client_id: str) 
 
 
 async def authorized_technician(technician_id, client_id) -> bool:
+    # if a technician is authorized to treat the client  - return the true
+    # else return false
     try:
         with connection.cursor() as cursor:
             sql = """SELECT * FROM technician_client WHERE technician_id = (%s) And client_id = (%s)"""
             data = (technician_id, client_id)
             cursor.execute(sql, data)
             result = cursor.fetchall()
-            # if result.get("technician_id") == technician_id:
-            #     return True
-            # return False
             if result:
                 return True
             return False
@@ -105,7 +113,3 @@ async def authorized_technician(technician_id, client_id) -> bool:
         connection.rollback()
         connection.close()
         raise Exception("Opss, it is an error in authorized_technician")
-
-
-
-

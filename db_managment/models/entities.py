@@ -19,7 +19,7 @@ class Technician(User):
 class BaseDevice(BaseModel):
     mac_address: constr(min_length=15, max_length=17)
     ip_address: constr(min_length=7, max_length=39)
-    vendor: constr(max_length=40)
+    vendor: constr(max_length=320)
 
     def __eq__(self, other):
         return self.mac_address == other.mac_address

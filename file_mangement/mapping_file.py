@@ -1,5 +1,4 @@
-from typing import List
-
+from typing import List, Set
 from scapy.all import rdpcap
 from db_managment.models.entities import Device, Connection
 import requests
@@ -26,9 +25,6 @@ async def map_devices(path, network_id) -> List[Device]:
         raise Exception("Failed to read the file")
 
 
-from db_managment.models.entities import Device, Connection
-
-
 async def get_vendor(mac_address):
     # We will use an API to get the vendor details
     url = "https://api.macvendors.com/"
@@ -46,11 +42,14 @@ async def map_connections(path) -> List[Connection]:
         scapy_cap = rdpcap(path)
         packets = list(scapy_cap)
         connections = list()
+        # connections = set()
         for packet in packets:
             e = packet["Ether"]
             connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
             connections.append(connect)
+            # connections.add(connect)
         return connections
+        # return list(connections)
     except Exception:
         raise Exception("Failed to read the file")
 
