@@ -2,8 +2,8 @@ import asyncio
 
 from scapy.libs.six import BytesIO
 
-from db_managment.network_and_devices_CRUD import insert_devices, create_network, insert_connections
-from db_managment.models.entities import Network, Device, Connection
+from db_managment.network_and_devices_CRUD import create_network, insert_connections, insert_devices
+from db_managment.models.entities import Network
 from file_mangement import mapping_file
 from scapy.all import rdpcap
 
