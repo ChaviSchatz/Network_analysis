@@ -27,7 +27,7 @@ async def get_devices(network_id: str, mac: str | None = None, vendor: str | Non
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-    if not await get_permissions(str(current_user.email), int(network_id)):
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                             detail="Unauthorized")
+    # if not await get_permissions(str(current_user.email), int(network_id)):
+    #     return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+    #                          detail="Unauthorized")
     return await get_devices_by_network_id(int(network_id), filters)
