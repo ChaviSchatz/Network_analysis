@@ -48,7 +48,7 @@ def create_device_graph(data):
     for device in data['devices']:
         G.add_node(device['ip_address'], label=device['ip_address'])
         for target_device in device['target_devices']:
-            G.add_node(target_device['ip_address'], label=target_device['ip_address'])
+            G.add_node(target_device['ip_address'], label=f"{target_device['ip_address']}")
 
     # Add edges between devices and their target devices
     for device in data['devices']:
