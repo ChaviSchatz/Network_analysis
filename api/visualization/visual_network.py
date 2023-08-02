@@ -1,6 +1,5 @@
 import json
 from typing import io
-
 import networkx as nx
 import matplotlib.pyplot as plt
 import mpld3
@@ -45,7 +44,7 @@ def create_device_graph(data):
     G = nx.Graph()
     # Add nodes for each device and target device
     for device in data['devices']:
-        G.add_node(device['mac_address'], label=device['mac_address'])
+        G.add_node(device['mac_address'], label=device['ip_address'])
         for target_device in device['target_devices']:
             G.add_node(target_device['mac_address'], label=target_device['mac_address'])
 
@@ -72,7 +71,7 @@ def draw_device_graph(graph):
     plt.show()
 
 
-def get_connections_graph(network: Network):
+def create_connections_graph_html(network: Network):
 
     try:
         for d in network.devices:
