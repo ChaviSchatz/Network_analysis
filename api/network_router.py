@@ -1,6 +1,6 @@
 import pm as pm
 from fastapi import APIRouter, Depends, HTTPException, Form
-from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
+from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -15,7 +15,7 @@ from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
-from visualization.visual_network import get_network_table, get_connections_graph
+from visualization.visual_network import get_network_table, create_connections_graph_html
 
 BASEURL = "/networks"
 networks = APIRouter(
@@ -54,8 +54,10 @@ async def get_network(id: str, request: Request, current_user: User = Depends(ge
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
     network = await get_network_by_id(int(id))
+    a = create_connections_graph_html(network)
+    return Response(content=a.getvalue(), media_type="image/png")
 
-    return get_connections_graph(network)
+
     # try:
     #     return templates.TemplateResponse("device_graph.html", {"request": request})
     # except:
