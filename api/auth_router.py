@@ -9,10 +9,13 @@ from Auth_management.auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES,
 from Auth_management.auth_models import Token, User
 from db_managment.models.entities import Technician
 
+from logger import logger_decorator
+
 auth_router = APIRouter(
-    responses={404: {"description": "not authenticate"}},)
+    responses={404: {"description": "not authenticate"}}, )
 
 
+@logger_decorator
 @auth_router.post("/token", response_model=Token)
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user: Technician = await authenticate_user(form_data.email, form_data.password, int(form_data.client_id))
@@ -34,6 +37,7 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@logger_decorator
 @auth_router.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
