@@ -1,10 +1,6 @@
 import io
-import json
-# from typing import io
-
 import networkx as nx
 import matplotlib.pyplot as plt
-import mpld3
 
 from db_management.models.entities import Network
 
