@@ -51,8 +51,10 @@ def create_device_graph(data):
 
     # Add edges between devices and their target devices
     for device in data['devices']:
+        protocols = []
         for target_device in device['target_devices']:
-            G.add_edge(device['mac_address'], target_device['mac_address'], protocol=target_device['protocol'])
+            protocols.append(target_device["protocol"])
+            G.add_edge(device['mac_address'], target_device['mac_address'], protocol=str(protocols))
 
     return G
 
