@@ -1,5 +1,6 @@
+import io
 import json
-from typing import io
+# from typing import io
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -79,16 +80,10 @@ def create_connections_graph_html(network: Network):
         network.devices = [d.__dict__ for d in network.devices]
         graph = create_device_graph(network.__dict__)
         draw_device_graph(graph)
-        # Export the plot to an HTML file
-        # output_html = "./static/device_graph.html"
-        # mpld3.save_html(plt.gcf(), output_html)
-        # plt.close()
         buffer = io.BytesIO()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
-        plt.show()
-        # Clear the plot
-        plt.clf()
+        plt.close()
         return buffer
     except Exception as e:
         print(f"error in teh network visualization... \n{e}")

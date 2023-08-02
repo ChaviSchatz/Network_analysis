@@ -2,8 +2,6 @@ import pm as pm
 from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
 from fastapi import APIRouter, Depends, HTTPException, Form
 from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form, Response
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
 from pymysql import Date
 from scapy.libs.six import BytesIO
@@ -21,8 +19,6 @@ from visualization.visual_network import get_network_table, create_connections_g
 BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
-
-templates = Jinja2Templates(directory="static")
 
 
 @networks.get(BASEURL + "/{id}", response_model=Network | None)
@@ -61,12 +57,6 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     network = await get_network_by_id(int(id))
     graph_img = create_connections_graph_html(network)
     return Response(content=graph_img.getvalue(), media_type="image/png")
-
-
-    # try:
-    #     return templates.TemplateResponse("device_graph.html", {"request": request})
-    # except:
-    #     return "<center><h4>error in the graph visualization... :(</h4></center>"
 
 
 @networks.post(BASEURL)
