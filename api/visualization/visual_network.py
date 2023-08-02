@@ -1,64 +1,34 @@
-json = {
-    "id": 29,
-    "client_id": 1,
-    "net_location": "\"Beit-Shemesh\"",
-    "production_date": "2023-07-25",
-    "devices": [
-        {
-            "mac_address": "00:25:00:fe:07:c4",
-            "ip_address": "00:25:00:fe:07:c4",
-            "vendor": "Apple, Inc.",
-            "id": None,
-            "network_id": None,
-            "target_devices": [
-                {
-                    "mac_address": "00:23:69:ad:57:7b",
-                    "ip_address": "00:23:69:ad:57:7b",
-                    "vendor": "Cisco-Linksys, LLC",
-                    "protocol": "UDP"
-                },
-                {
-                    "mac_address": "00:23:69:ad:57:7b",
-                    "ip_address": "00:23:69:ad:57:7b",
-                    "vendor": "Cisco-Linksys, LLC",
-                    "protocol": "TCP"
-                }
-            ]
-        },
-        {
-            "mac_address": "00:23:69:ad:57:7b",
-            "ip_address": "00:23:69:ad:57:7b",
-            "vendor": "Cisco-Linksys, LLC",
-            "id": None,
-            "network_id": None,
-            "target_devices": [
-                {
-                    "mac_address": "00:25:00:fe:07:c4",
-                    "ip_address": "00:25:00:fe:07:c4",
-                    "vendor": "Apple, Inc.",
-                    "protocol": "UDP"
-                },
-                {
-                    "mac_address": "00:25:00:fe:07:c4",
-                    "ip_address": "00:25:00:fe:07:c4",
-                    "vendor": "Apple, Inc.",
-                    "protocol": "TCP"
-                }
-            ]
-        }
-    ]
-}
+import json
 
-def get_visual_connections(network_json) :
-    html_content = """
-        <html>
-            <head>
-                <title>Some HTML in here</title>
-            </head>
-            <body>
-                <h1>Look ma! HTML!</h1>
-            </body>
-        </html>
-        """
-    return html_content
+
+def get_network_table(data: dict):
+    try:
+        html = ""
+        # general details about tne net:
+        for key, value in data.items():
+            if key == "id":
+                html += f"<h3><b>Network {value}</b></h3>"
+            if key == "devices":
+                break
+            html += f"<h4><b>{key}</b> : {value}<h4>\n"
+        # table of all the devices
+        html += "<table border='1'>\n"
+        if "devices" in data and isinstance(data["devices"], list):
+            html += "<tr><td colspan='2'><b>Devices</b></td></tr>\n"
+            html += "<tr><td colspan='2'><table border='1'>\n"
+            html += "<tr><td><b>mac address</b></td><td><b>ip address</b></td><td><b>vendor</b></td><td colspan='2'><b>Target Devices</b></td></tr>\n"
+            for device in data["devices"]:
+                html += "<tr><td>{}</td>\n".format(device.mac_address)
+                html += "<td>{}</td>\n".format(device.ip_address)
+                html += "<td>{}</td>\n".format(device.vendor)
+                # list ao the mac address that contact with this device
+                if device.target_devices:
+                    html += "<td><ul>"
+                    for target_device in device.target_devices:
+                        html += "<li>{}</li>\n".format(target_device.mac_address)
+                html += "</ul> </td></tr>\n"
+            html += "</table></td></tr>\n"
+        return html
+    except Exception as e:
+        return f"<h3> faild to load the html table. :( \n{e}</h1>"
 

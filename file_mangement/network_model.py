@@ -19,8 +19,5 @@ async def map_file(client_id: int, net_location: str, production_date: str, file
     connections_mapping_list = await mapping_file.map_connections(scapy_cap)
     # insert the connections
     await insert_connections(list(connections_mapping_list), network_id)
-    # await asyncio.gather(insert_network(devices_mapping_list), insert_connections(connections_mapping_list))
     return network_id
-
-
 
