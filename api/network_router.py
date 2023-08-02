@@ -14,6 +14,8 @@ from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
 from visualization.visual_network import get_network_table, get_connections_graph
 
+from logger import logger_decorator
+
 BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
@@ -21,6 +23,7 @@ networks = APIRouter(
 templates = Jinja2Templates(directory="static")
 
 
+@logger_decorator
 @networks.get(BASEURL + "/{id}", response_model=Network | None)
 async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
@@ -30,6 +33,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return await get_network_by_id(int(id))
 
 
+@logger_decorator
 @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
 async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
@@ -39,6 +43,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return get_network_table(json.dumps(json_network))
 
 
+@logger_decorator
 @networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
 async def get_network(id: str, request: Request):  # , current_user: User = Depends(get_current_active_user)):
     # import json
@@ -103,6 +108,7 @@ async def get_network(id: str, request: Request):  # , current_user: User = Depe
         return "<center><h4>error in the graph visualization... :(</h4></center>"
 
 
+@logger_decorator
 @networks.post(BASEURL)
 async def create_network_model_from_file(file: UploadFile = File(...), client_id: int = Form(...),
                                          net_location: str = Form(...),
