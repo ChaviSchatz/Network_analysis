@@ -1,9 +1,8 @@
 from fastapi import APIRouter
 from datetime import timedelta
 
-import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, status, Request, Response, encoders
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status, Response, encoders
+from fastapi.security import OAuth2PasswordRequestForm
 
 from Auth_management.auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, \
     get_current_active_user
@@ -11,7 +10,6 @@ from Auth_management.auth_models import Token, User
 from db_managment.models.entities import Technician
 
 auth_router = APIRouter(
-    # tags=["items"],
     responses={404: {"description": "not authenticate"}},)
 
 

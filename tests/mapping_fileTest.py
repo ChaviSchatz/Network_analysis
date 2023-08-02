@@ -1,4 +1,5 @@
 from file_mangement.mapping_file import map_connections, map_devices
+from scapy.all import wrpcap, Ether, IP, UDP
 
 
 def test_map_connections():
@@ -6,19 +7,6 @@ def test_map_connections():
 
 
 def test_map_devices():
-    # # assert map_devices(r"C:\Users\This User\Downloads\evidence01.pcap", 1)
-    # # with open("my_file.txt", "w") as f:
-    # #     f.write("line1\nline2\nline3")
-    # # assert map_devices(f, 1) == ["line1\n", "line2\n", "line3"]
-    #
-    #
-    # cap = sniff(timeout=5)
-    #
-    # # save to pcap file
-    # wrpcap('test-std.pcap', cap)
-    #
-    # # save to buffer
-    #
-    # with open('test-mem.pcap', 'wb') as fp:
-    #     fp.write(buf.read())
-    assert map_devices(r"C:\Users\user\Downloads\evidence01.pcap", 1)
+    packet = Ether() / IP(dst="1.2.3.4") / UDP(dport=123)
+    wrpcap('foo.pcap', [packet])
+    assert map_devices("foo.pcap", 1)
