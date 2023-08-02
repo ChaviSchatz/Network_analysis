@@ -1,5 +1,8 @@
 import pm as pm
 from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
+from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form, Response
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from pymysql import Date
@@ -13,7 +16,7 @@ from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
-from visualization.visual_network import get_network_table, get_connections_graph
+from visualization.visual_network import get_network_table, create_connections_graph_html
 
 BASEURL = "/networks"
 networks = APIRouter(
@@ -27,10 +30,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-    is_permitted = await get_permissions(str(current_user.email), int(id))
-    if not is_permitted:
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                             detail="Unauthorized")
+
     return await get_network_by_id(int(id))
 
 
@@ -46,6 +46,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
 #     network: Network = await get_network_by_id(int(id))
 #     # network.production_date = str(network.production_date)
 #     return get_network_table(network.__dict__)
+
 @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
 async def get_network_visual(id: str):
     network: Network = await get_network_by_id(int(id))
@@ -53,16 +54,15 @@ async def get_network_visual(id: str):
 
 
 @networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
-async def get_network(id: str, request: Request, current_user: User = Depends(get_current_active_user)):
+async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-    if not await get_permissions(str(current_user.email), int(id)):
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                             detail="Unauthorized")
     network = await get_network_by_id(int(id))
+    a = create_connections_graph_html(network)
+    return Response(content=a.getvalue(), media_type="image/png")
 
-    return get_connections_graph(network)
+
     # try:
     #     return templates.TemplateResponse("device_graph.html", {"request": request})
     # except:

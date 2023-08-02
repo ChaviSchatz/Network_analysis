@@ -72,7 +72,7 @@ def draw_device_graph(graph):
     plt.show()
 
 
-def get_connections_graph(network: Network):
+def create_connections_graph_html(network: Network):
 
     try:
         for d in network.devices:
