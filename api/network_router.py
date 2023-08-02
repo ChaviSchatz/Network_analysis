@@ -54,8 +54,8 @@ async def get_network(id: str, request: Request, current_user: User = Depends(ge
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
     network = await get_network_by_id(int(id))
-    a = create_connections_graph_html(network)
-    return Response(content=a.getvalue(), media_type="image/png")
+    graph_img = create_connections_graph_html(network)
+    return Response(content=graph_img.getvalue(), media_type="image/png")
 
 
     # try:
