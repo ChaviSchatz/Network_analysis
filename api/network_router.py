@@ -1,4 +1,9 @@
+import pm as pm
 from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 from pymysql import Date
 from scapy.libs.six import BytesIO
 from starlette import status
@@ -10,11 +15,13 @@ from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
 from file_mangement.network_model import map_file
-from visualization.visual_network import get_network_table
+from visualization.visual_network import get_network_table, get_connections_graph
 
 BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
+
+templates = Jinja2Templates(directory="static")
 
 
 @networks.get(BASEURL + "/{id}", response_model=Network | None)
@@ -39,6 +46,20 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
 async def get_network_visual(id: str):
     network: Network = await get_network_by_id(int(id))
     return get_network_table(network.__dict__)
+
+
+@networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
+async def get_network(id: str, request: Request, current_user: User = Depends(get_current_active_user)):
+    if not current_user:
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
+    network = await get_network_by_id(int(id))
+
+    return get_connections_graph(network)
+    # try:
+    #     return templates.TemplateResponse("device_graph.html", {"request": request})
+    # except:
+    #     return "<center><h4>error in the graph visualization... :(</h4></center>"
 
 
 @networks.post(BASEURL)
