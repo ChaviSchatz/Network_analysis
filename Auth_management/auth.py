@@ -56,6 +56,9 @@ oauth2_cookie_scheme = OAuth2PasswordBearerWithCookie(token_url="token")
 
 
 def verify_password(plain_password, hashed_password):
+    newly_hashed = pwd_context.hash(plain_password)
+    print("newly password is: ---" + newly_hashed + "--- done")
+
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -72,6 +75,7 @@ async def authenticate_user(email: str, password: str, client_id: int):
     user: Technician = await get_user(email)
     if not user:
         return None
+    print("password is: ---" + user.hashed_password + "--- done")
     if not verify_password(password, user.hashed_password):
         return None
     if not await client_authorization_check(user.id, client_id):
@@ -120,5 +124,5 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
-async def get_permissions(net_id: int, user_email: str):
+async def get_permissions(user_email: str, net_id: int):
     return await authorized_technician_to_network(user_email, net_id)

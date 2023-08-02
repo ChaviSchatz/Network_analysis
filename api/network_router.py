@@ -1,7 +1,5 @@
 import pm as pm
-from fastapi import APIRouter, Depends, HTTPException, Form
 from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from pymysql import Date
@@ -29,7 +27,8 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-    if not await get_permissions(str(current_user.email), int(id)):
+    is_permitted = await get_permissions(str(current_user.email), int(id))
+    if not is_permitted:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
     return await get_network_by_id(int(id))
