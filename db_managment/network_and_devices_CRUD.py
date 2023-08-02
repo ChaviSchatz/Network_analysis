@@ -1,9 +1,14 @@
+import asyncio
 import logging
 from typing import List
+
+from pymysql import MySQLError
+
 from db_managment.db_connection import connection
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
-logging.basicConfig(filename="newfile.log",
+
+logging.basicConfig(filename="log_file.log",
                     format='%(asctime)s %(message)s',
                     filemode='w')
 logger = logging.getLogger()
@@ -21,13 +26,18 @@ async def create_network(network: Network) -> int:
             logger.info(f"This network {data} has been created")
             network_id = cursor.lastrowid
             return network_id
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in create_network")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Error in create_network")
 
 
-async def insert_devices(device_list: List[Device]):
+async def insert_devices(device_list: List[Device]) -> None:
     try:
         with connection.cursor() as cursor:
             query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
@@ -37,13 +47,18 @@ async def insert_devices(device_list: List[Device]):
                 cursor.execute(query, data)
             connection.commit()
             logger.info(f"{len(device_list)} devices entered the network")
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in insert_devices")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Error in insert_network")
 
 
-async def insert_connections(list_of_connections: List[Connection], network_id: int):
+async def insert_connections(list_of_connections: List[Connection], network_id: int) -> None:
     try:
         with connection.cursor() as cursor:
             sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s AND network_id = %s"""
@@ -63,13 +78,18 @@ async def insert_connections(list_of_connections: List[Connection], network_id: 
                 i += 1
             connection.commit()
             logger.info(f"{len(list_of_connections)} connections entered the network")
-            print("Done!")
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in insert_connections")
     except Exception:
+        connection.rollback()
         connection.close()
         raise Exception("Error in insert_connections.")
 
 
-def unique_set_from_list(obj_list: list):
+def unique_set_from_list(obj_list: list) -> list:
     unique_dict = {}
     for obj in obj_list:
         key = obj.model_dump_json()  # Convert the Pydantic object to its JSON representation
@@ -79,7 +99,7 @@ def unique_set_from_list(obj_list: list):
 
 
 # The function returns a detailed network model
-async def get_network(network_id: int):
+async def get_network(network_id: int) -> Network | None:
     try:
         with connection.cursor() as cursor:
             query = """SELECT network.id AS network_id, network.client_id,
@@ -98,7 +118,14 @@ async def get_network(network_id: int):
             all_data = cursor.fetchall()
             tech = get_network_obj_from_data(all_data)
             return tech
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in get_network")
     except Exception:
+        connection.rollback()
+        connection.close()
         raise Exception("can't get network from db.")
 
 
@@ -116,6 +143,11 @@ async def get_devices_by_one_or_more_filter(network_id: int, the_filter: dict) -
             result = cursor.fetchall()
             logger.info(f"there are {len(result)} network(s) with the required filters")
             return result
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in insert_connections")
     except Exception:
         connection.rollback()
         connection.close()
@@ -130,6 +162,11 @@ async def get_connections_by_protocol_filter(protocol_filter: dict) -> List[Conn
             result = cursor.fetchall()
             logger.info(f"There are {len(result)} connections with the required protocol filter")
             return result
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in insert_connections")
     except Exception:
         connection.rollback()
         connection.close()
@@ -144,13 +181,18 @@ async def get_networks_by_client_id(client_id: int) -> List[Network]:
             result = cursor.fetchall()
             logger.info(f"There are {len(result)} networks to client ID {client_id}")
             return result
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in insert_connections")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Opss, it is an error in get_network_by_client_id")
 
 
-def get_network_obj_from_data(data_from_db: list):
+def get_network_obj_from_data(data_from_db: list) -> Network | None:
     # The function takes the information from the database and
     # transforms it into a network object after mapping the data
     if len(data_from_db) == 0:
@@ -187,3 +229,12 @@ def get_network_obj_from_data(data_from_db: list):
     # give the network the devices
     target_network.devices = devices
     return target_network
+
+
+# async def main():
+#     # # id = await get_network(1)
+#     # # print("121", id, "AAAA", type(id))
+#     # s = await get_network_obj_from_data()
+#
+#
+# asyncio.run(main())

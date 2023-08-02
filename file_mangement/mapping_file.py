@@ -48,7 +48,7 @@ async def map_connections(scapy_cap) -> List[Connection]:
             e = packet["Ether"]
             connect = Connection(src=e.src, dst=e.dst, protocol=get_protocol(e))
             if connect not in connections:
-              connections.append(connect)
+                connections.append(connect)
         print(connections)
         return list(connections)
     except Exception:

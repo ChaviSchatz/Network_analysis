@@ -20,9 +20,4 @@ async def map_file(client_id: int, net_location: str, production_date: str, file
     return network_id
 
 
-# async def main():
-#     r = await map_file(2, "NYC", "2023-05-12", r"C:\Users\user\Downloads\evidence01.pcap")
-#     print(r)
-#
-#
-# asyncio.run(main())
+
