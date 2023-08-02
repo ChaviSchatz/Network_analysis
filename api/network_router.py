@@ -10,7 +10,7 @@ from starlette import status
 from fastapi import File, UploadFile
 from starlette.responses import HTMLResponse
 
-from Auth_management.auth import get_current_active_user
+from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
 from db_managment.models.entities import Network
@@ -29,7 +29,9 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     if not current_user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
-
+    if not await get_permissions(str(current_user.email), int(id)):
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
     return await get_network_by_id(int(id))
 
 
@@ -37,6 +39,9 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
 # async def get_network_visual(id: str, current_user: User = Depends(get_current_active_user)):
 #     import json
 #     if not current_user:
+#         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#                              detail="Unauthorized")
+#     if not await get_permissions(str(current_user.email), int(network_id)):
 #         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
 #                              detail="Unauthorized")
 #     network: Network = await get_network_by_id(int(id))
@@ -51,6 +56,9 @@ async def get_network_visual(id: str):
 @networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
 async def get_network(id: str, request: Request, current_user: User = Depends(get_current_active_user)):
     if not current_user:
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
+    if not await get_permissions(str(current_user.email), int(id)):
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
     network = await get_network_by_id(int(id))

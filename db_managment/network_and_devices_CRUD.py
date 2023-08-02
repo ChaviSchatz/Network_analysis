@@ -1,9 +1,13 @@
 import logging
 from typing import List
+
+from pymysql import MySQLError
+
 from db_managment.db_connection import connection
 from db_managment.models.entities import Network, Device, Connection, TargetDevice
 
-logging.basicConfig(filename="newfile.log",
+
+logging.basicConfig(filename="log_file.log",
                     format='%(asctime)s %(message)s',
                     filemode='w')
 logger = logging.getLogger()
@@ -21,6 +25,11 @@ async def create_network(network: Network) -> int:
             logger.info(f"This network {data} has been created")
             network_id = cursor.lastrowid
             return network_id
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in create_technician")
     except Exception:
         connection.rollback()
         connection.close()
@@ -37,6 +46,11 @@ async def insert_devices(device_list: List[Device]):
                 cursor.execute(query, data)
             connection.commit()
             logger.info(f"{len(device_list)} devices entered the network")
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in create_technician")
     except Exception:
         connection.rollback()
         connection.close()
@@ -63,8 +77,13 @@ async def insert_connections(list_of_connections: List[Connection], network_id: 
                 i += 1
             connection.commit()
             logger.info(f"{len(list_of_connections)} connections entered the network")
-            print("Done!")
+
+    except MySQLError as ex:
+        connection.rollback()
+        connection.close()
+        raise MySQLError(f"An error {ex} occurred in create_technician")
     except Exception:
+        connection.rollback()
         connection.close()
         raise Exception("Error in insert_connections.")
 

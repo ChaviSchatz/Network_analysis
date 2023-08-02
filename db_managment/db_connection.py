@@ -11,3 +11,4 @@ connection = pymysql.connect(
 
 if connection.open:
     print("the connection to db is opened!")
+
