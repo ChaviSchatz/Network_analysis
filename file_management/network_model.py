@@ -1,8 +1,10 @@
 import asyncio
-from io import BytesIO
-from db_managment.network_and_devices_CRUD import insert_devices, create_network, insert_connections
-from db_managment.models.entities import Network
-from file_mangement import mapping_file
+
+from scapy.libs.six import BytesIO
+
+from db_management.network_and_devices_CRUD import create_network, insert_connections, insert_devices
+from db_management.models.entities import Network
+from file_management import mapping_file
 from scapy.all import rdpcap
 
 
@@ -18,6 +20,4 @@ async def map_file(client_id: int, net_location: str, production_date: str, file
     # insert the connections
     await insert_connections(list(connections_mapping_list), network_id)
     return network_id
-
-
 

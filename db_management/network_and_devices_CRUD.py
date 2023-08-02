@@ -1,9 +1,14 @@
+import asyncio
+import logging
 from typing import List
+
 from pymysql import MySQLError
-from db_managment.db_connection import connection
-from db_managment.models.entities import Network, Device, Connection, TargetDevice
 from logger import logger_decorator
 import asyncio
+
+from db_management.db_connection import connection
+from db_management.models.entities import Network, Device, Connection, TargetDevice
+
 
 
 @logger_decorator
@@ -223,8 +228,8 @@ def get_network_obj_from_data(data_from_db: list) -> Network | None:
 
 
 async def main():
-    n = Network(client_id=1, net_location="NYC", production_date="2023-02-14")
-    a = await create_network(n)
-    print(a)
+    id = await get_network(1)
+    print("121", )
+
 
 asyncio.run(main())

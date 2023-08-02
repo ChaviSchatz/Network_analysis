@@ -1,7 +1,7 @@
 from scapy.libs.six import BytesIO
 
-from db_managment.models.entities import Network
-from file_mangement.network_model import map_file
+from db_management.models.entities import Network
+from file_management.network_model import map_file
 from network_analysis.network_analysis import get_network_by_network_id
 
 

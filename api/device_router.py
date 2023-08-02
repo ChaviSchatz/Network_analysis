@@ -3,10 +3,10 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-from Auth_management.auth import get_current_active_user
+from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.device_controller import get_devices_by_network_id
-from db_managment.models.entities import Network, Device
+from db_management.models.entities import Network, Device
 
 from logger import logger_decorator
 
@@ -25,6 +25,9 @@ async def get_devices(network_id: str, mac: str | None = None, vendor: str | Non
     if vendor:
         filters["vendor"] = vendor
     if not current_user:
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
+    if not await get_permissions(str(current_user.email), int(network_id)):
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Unauthorized")
     return await get_devices_by_network_id(int(network_id), filters)

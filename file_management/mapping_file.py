@@ -1,5 +1,5 @@
 from typing import List
-from db_managment.models.entities import Device, Connection
+from db_management.models.entities import Device, Connection
 import requests
 import urllib3
 from scapy.layers.inet import IP

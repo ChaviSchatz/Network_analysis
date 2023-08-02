@@ -1,26 +1,26 @@
+import pm as pm
 from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import Request, APIRouter, Depends, File, UploadFile, HTTPException, Form, Response
 
 from pymysql import Date
 from scapy.libs.six import BytesIO
 from starlette import status
-import json
+from fastapi import File, UploadFile
+from starlette.responses import HTMLResponse
 
-from Auth_management.auth import get_current_active_user  # , get_permissions
+from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
-from db_managment.models.entities import Network
-from file_mangement.network_model import map_file
-from visualization.visual_network import get_network_table, get_connections_graph
+from db_management.models.entities import Network
+from file_management.network_model import map_file
+from visualization.visual_network import get_network_table, create_connections_graph_html
 
 from logger import logger_decorator
 
 BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
-
-templates = Jinja2Templates(directory="static")
 
 
 @logger_decorator
@@ -33,79 +33,34 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return await get_network_by_id(int(id))
 
 
+# @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
+# async def get_network_visual(id: str, current_user: User = Depends(get_current_active_user)):
+#     import json
+#     if not current_user:
+#         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#                              detail="Unauthorized")
+#     if not await get_permissions(str(current_user.email), int(network_id)):
+#         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#                              detail="Unauthorized")
+#     network: Network = await get_network_by_id(int(id))
+#     # network.production_date = str(network.production_date)
+#     return get_network_table(network.__dict__)
 @logger_decorator
 @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
-async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
-    if not current_user:
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                             detail="Unauthorized")
-    json_network = await get_network_by_id(int(id))
-    return get_network_table(json.dumps(json_network))
+async def get_network_visual(id: str):
+    network: Network = await get_network_by_id(int(id))
+    return get_network_table(network.__dict__)
 
 
 @logger_decorator
 @networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
-async def get_network(id: str, request: Request):  # , current_user: User = Depends(get_current_active_user)):
-    # import json
-    # if not current_user:
-    #     return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-    #                          detail="Unauthorized")
-    # json_network = await get_network_by_id(int(id))
-    json_network = {
-        "id": 37,
-        "client_id": 1,
-        "net_location": "\"Beit-Shemesh\"",
-        "production_date": "2023-07-25",
-        "devices": [
-            {
-                "mac_address": "00:25:00:fe:07:c4",
-                "ip_address": "192.168.1.10",
-                "vendor": "Apple, Inc.",
-                "id": None,
-                "network_id": None,
-                "target_devices": [
-                    {
-                        "mac_address": "00:23:69:ad:57:7b",
-                        "ip_address": "4.2.2.1",
-                        "vendor": "Cisco-Linksys, LLC",
-                        "protocol": "UDP"
-                    },
-                    {
-                        "mac_address": "00:23:69:ad:57:7b",
-                        "ip_address": "4.2.2.1",
-                        "vendor": "Cisco-Linksys, LLC",
-                        "protocol": "TCP"
-                    }
-                ]
-            },
-            {
-                "mac_address": "00:23:69:ad:57:7b",
-                "ip_address": "4.2.2.1",
-                "vendor": "Cisco-Linksys, LLC",
-                "id": None,
-                "network_id": None,
-                "target_devices": [
-                    {
-                        "mac_address": "00:25:00:fe:07:c4",
-                        "ip_address": "192.168.1.10",
-                        "vendor": "Apple, Inc.",
-                        "protocol": "UDP"
-                    },
-                    {
-                        "mac_address": "00:25:00:fe:07:c4",
-                        "ip_address": "192.168.1.10",
-                        "vendor": "Apple, Inc.",
-                        "protocol": "TCP"
-                    }
-                ]
-            }
-        ]
-    }
-    get_connections_graph(json.dumps(json_network))
-    try:
-        return templates.TemplateResponse("device_graph.html", {"request": request})
-    except:
-        return "<center><h4>error in the graph visualization... :(</h4></center>"
+async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
+    if not current_user:
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Unauthorized")
+    network = await get_network_by_id(int(id))
+    graph_img = create_connections_graph_html(network)
+    return Response(content=graph_img.getvalue(), media_type="image/png")
 
 
 @logger_decorator

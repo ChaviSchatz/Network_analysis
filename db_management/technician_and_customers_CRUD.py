@@ -1,10 +1,12 @@
+import logging
 from typing import Tuple, Any
 
 from pymysql import MySQLError
 
-from db_managment.db_connection import connection
-from db_managment.models.entities import Client, Technician
 from logger import logger_decorator
+from db_management.db_connection import connection
+from db_management.models.entities import Client, Technician
+
 
 
 @logger_decorator

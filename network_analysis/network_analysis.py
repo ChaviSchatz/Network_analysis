@@ -1,7 +1,7 @@
 from typing import List
 
-from db_managment.models.entities import Device
-from db_managment.network_and_devices_CRUD import \
+from db_management.models.entities import Device
+from db_management.network_and_devices_CRUD import \
     get_devices_by_one_or_more_filter, get_connections_by_protocol_filter, get_network
 
 

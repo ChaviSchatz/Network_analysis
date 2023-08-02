@@ -1,4 +1,4 @@
-from file_mangement.mapping_file import map_connections, map_devices
+from file_management.mapping_file import map_connections, map_devices
 from scapy.all import wrpcap, Ether, IP, UDP
 
 
