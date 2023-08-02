@@ -14,7 +14,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-async def create_client(client: Client):
+async def create_client(client: Client) -> None:
     try:
         with connection.cursor() as cursor:
             query = """INSERT INTO client (
@@ -35,7 +35,7 @@ async def create_client(client: Client):
         raise Exception("An error in create_client")
 
 
-async def create_technician(technician: Technician):
+async def create_technician(technician: Technician) -> None:
     try:
         with connection.cursor() as cursor:
             query = """INSERT into technician (full_name,hashed_password, email)
@@ -55,7 +55,7 @@ async def create_technician(technician: Technician):
         raise Exception("can't insert technician to db")
 
 
-async def update_client(client: Client):
+async def update_client(client: Client) -> None:
     try:
         with connection.cursor() as cursor:
             sql = "UPDATE client SET full_name=%s WHERE id=%s"
@@ -74,7 +74,7 @@ async def update_client(client: Client):
         raise Exception("can't update client to db")
 
 
-async def update_technician(technician: Technician):
+async def update_technician(technician: Technician) -> None:
     try:
         with connection.cursor() as cursor:
             query = "UPDATE technician SET full_name=%s, hashed_password=%s ,email=%s WHERE id=%s"
@@ -86,14 +86,14 @@ async def update_technician(technician: Technician):
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in update_technician")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("can't update technician to db")
 
 
-async def technician_verification(email: str):
+async def technician_verification(email: str) -> Technician | None:
     # if find - return the technician
     # else return None
     try:
@@ -112,7 +112,7 @@ async def technician_verification(email: str):
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in technician_verification")
     except Exception:
         connection.rollback()
         connection.close()
@@ -134,7 +134,7 @@ async def technician_associated_with_client(technician_id: int, client_id: int) 
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in technician_associated_with_client")
     except Exception:
         connection.rollback()
         connection.close()
@@ -159,14 +159,14 @@ async def authorized_technician(technician_id: int, client_id: int) -> bool:
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in authorized_technician")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Opss, it is an error in authorized_technician")
 
 
-async def authorized_technician_to_network(technician_id: int, network_id: int) -> bool:
+async def authorized_technician_to_network(technician_email: str, network_id: int) -> bool:
     # if a technician is authorized to treat the client  - return the true
     # else return false
     try:
@@ -175,9 +175,14 @@ async def authorized_technician_to_network(technician_id: int, network_id: int) 
             data = network_id
             cursor.execute(sql, data)
             network_result = cursor.fetchall()
-            if network_result:
+
+            sql = """ SELECT * FROM technician WHERE email = (%s) """
+            data = technician_email
+            cursor.execute(sql, data)
+            technician_result = cursor.fetchall()
+            if network_result and technician_result:
                 sql = """ SELECT * FROM technician_client WHERE client_id = (%s) And technician_id = (%s) """
-                data = (network_result[0].get("id"), technician_id)
+                data = (network_result[0].get("id"), technician_result[0].get("id"))
                 cursor.execute(sql, data)
                 result = cursor.fetchall()
                 if result:
@@ -189,7 +194,7 @@ async def authorized_technician_to_network(technician_id: int, network_id: int) 
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in authorized_technician_to_network")
     except Exception:
         connection.rollback()
         connection.close()

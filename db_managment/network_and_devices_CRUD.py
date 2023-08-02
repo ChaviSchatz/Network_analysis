@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import List
 
@@ -29,14 +30,14 @@ async def create_network(network: Network) -> int:
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in create_network")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Error in create_network")
 
 
-async def insert_devices(device_list: List[Device]):
+async def insert_devices(device_list: List[Device]) -> None:
     try:
         with connection.cursor() as cursor:
             query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
@@ -50,14 +51,14 @@ async def insert_devices(device_list: List[Device]):
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in insert_devices")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Error in insert_network")
 
 
-async def insert_connections(list_of_connections: List[Connection], network_id: int):
+async def insert_connections(list_of_connections: List[Connection], network_id: int) -> None:
     try:
         with connection.cursor() as cursor:
             sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s AND network_id = %s"""
@@ -81,14 +82,14 @@ async def insert_connections(list_of_connections: List[Connection], network_id: 
     except MySQLError as ex:
         connection.rollback()
         connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_technician")
+        raise MySQLError(f"An error {ex} occurred in insert_connections")
     except Exception:
         connection.rollback()
         connection.close()
         raise Exception("Error in insert_connections.")
 
 
-def unique_set_from_list(obj_list: list):
+def unique_set_from_list(obj_list: list) -> list:
     unique_dict = {}
     for obj in obj_list:
         key = obj.model_dump_json()  # Convert the Pydantic object to its JSON representation
@@ -206,3 +207,11 @@ def get_network_obj_from_data(data_from_db: list):
     # give the network the devices
     target_network.devices = devices
     return target_network
+
+
+async def main():
+    id = await get_network(1)
+    print("121", )
+
+
+asyncio.run(main())
