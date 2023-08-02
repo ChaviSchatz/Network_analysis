@@ -68,8 +68,7 @@ def draw_device_graph(graph):
     nx.draw(graph, pos, with_labels=True, node_size=5000, node_color='skyblue', font_size=10, font_weight='bold')
     nx.draw_networkx_labels(graph, pos, labels, font_size=10, font_weight='bold')
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=protocols, font_size=8, font_color='red')
-
-    plt.show()
+    # plt.show()
 
 
 def create_connections_graph_html(network: Network):
@@ -81,8 +80,8 @@ def create_connections_graph_html(network: Network):
         graph = create_device_graph(network.__dict__)
         draw_device_graph(graph)
         # Export the plot to an HTML file
-        output_html = "./static/device_graph.html"
-        mpld3.save_html(plt.gcf(), output_html)
+        # output_html = "./static/device_graph.html"
+        # mpld3.save_html(plt.gcf(), output_html)
         # plt.close()
         buffer = io.BytesIO()
         plt.savefig(buffer, format='png')
