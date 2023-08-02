@@ -14,8 +14,8 @@ from starlette.responses import HTMLResponse
 from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.network_controller import get_network_by_id
-from db_managment.models.entities import Network
-from file_mangement.network_model import map_file
+from db_management.models.entities import Network
+from file_management.network_model import map_file
 from visualization.visual_network import get_network_table, create_connections_graph_html
 
 BASEURL = "/networks"

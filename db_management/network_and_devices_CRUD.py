@@ -4,8 +4,8 @@ from typing import List
 
 from pymysql import MySQLError
 
-from db_managment.db_connection import connection
-from db_managment.models.entities import Network, Device, Connection, TargetDevice
+from db_management.db_connection import connection
+from db_management.models.entities import Network, Device, Connection, TargetDevice
 
 
 logging.basicConfig(filename="log_file.log",

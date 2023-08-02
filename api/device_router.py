@@ -6,7 +6,7 @@ from starlette import status
 from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.device_controller import get_devices_by_network_id
-from db_managment.models.entities import Network, Device
+from db_management.models.entities import Network, Device
 
 BASEURL = "/devices"
 devices = APIRouter(responses={404: {"description": "not found"}})

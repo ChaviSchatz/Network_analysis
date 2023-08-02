@@ -12,9 +12,9 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from Auth_management.auth_models import TokenData, User
-from db_managment.technician_and_customers_CRUD import technician_verification, technician_associated_with_client, \
+from db_management.technician_and_customers_CRUD import technician_verification, technician_associated_with_client, \
     authorized_technician_to_network
-from db_managment.models.entities import Technician
+from db_management.models.entities import Technician
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
