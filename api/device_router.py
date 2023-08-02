@@ -7,11 +7,14 @@ from Auth_management.auth import get_current_active_user, get_permissions
 from Auth_management.auth_models import User
 from controllers.device_controller import get_devices_by_network_id
 from db_management.models.entities import Network, Device
+from logger import logger_decorator
+
 
 BASEURL = "/devices"
 devices = APIRouter(responses={404: {"description": "not found"}})
 
 
+@logger_decorator
 @devices.get(BASEURL + "/{network_id}", response_model=List[Device] | None)
 async def get_devices(network_id: str, mac: str | None = None, vendor: str | None = None,
                       current_user: User = Depends(get_current_active_user)):

@@ -1,19 +1,11 @@
-import logging
-from typing import Tuple, Any
-
 from pymysql import MySQLError
 
+from logger import logger_decorator
 from db_management.db_connection import connection
 from db_management.models.entities import Client, Technician
 
 
-logging.basicConfig(filename="log_file.log",
-                    format='%(asctime)s %(message)s',
-                    filemode='w')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
+@logger_decorator
 async def create_client(client: Client) -> None:
     try:
         with connection.cursor() as cursor:
@@ -23,7 +15,6 @@ async def create_client(client: Client) -> None:
             data = client.full_name
             cursor.execute(query, data)
             connection.commit()
-            logger.info(f"This client {data} has been created")
 
     except MySQLError as ex:
         connection.rollback()
@@ -35,6 +26,7 @@ async def create_client(client: Client) -> None:
         raise Exception("An error in create_client")
 
 
+@logger_decorator
 async def create_technician(technician: Technician) -> None:
     try:
         with connection.cursor() as cursor:
@@ -43,7 +35,6 @@ async def create_technician(technician: Technician) -> None:
             data = (technician.full_name, technician.hashed_password, technician.email)
             cursor.execute(query, data)
             connection.commit()
-            logger.info(f"This technician {data} has been created")
 
     except MySQLError as ex:
         connection.rollback()
@@ -55,6 +46,7 @@ async def create_technician(technician: Technician) -> None:
         raise Exception("can't insert technician to db")
 
 
+@logger_decorator
 async def update_client(client: Client) -> None:
     try:
         with connection.cursor() as cursor:
@@ -62,7 +54,6 @@ async def update_client(client: Client) -> None:
             data = (client.full_name, client.id)
             cursor.execute(sql, data)
             connection.commit()
-            logger.info(f"This client {data} has been updated")
 
     except MySQLError as ex:
         connection.rollback()
@@ -74,6 +65,7 @@ async def update_client(client: Client) -> None:
         raise Exception("can't update client to db")
 
 
+@logger_decorator
 async def update_technician(technician: Technician) -> None:
     try:
         with connection.cursor() as cursor:
@@ -81,7 +73,6 @@ async def update_technician(technician: Technician) -> None:
             data = (technician.full_name, technician.hashed_password, technician.email, technician.id)
             cursor.execute(query, data)
             connection.commit()
-            logger.info(f"This technician {data} has been updated")
 
     except MySQLError as ex:
         connection.rollback()
@@ -93,6 +84,7 @@ async def update_technician(technician: Technician) -> None:
         raise Exception("can't update technician to db")
 
 
+@logger_decorator
 async def technician_verification(email: str) -> Technician | None:
     # if find - return the technician
     # else return None
@@ -104,9 +96,7 @@ async def technician_verification(email: str) -> Technician | None:
             result = cursor.fetchall()
 
             if len(result) > 0:
-                logger.info(f"This technician {result}!")
                 return result[0]
-            logger.info("Dont find the technician...")
             return None
 
     except MySQLError as ex:
@@ -119,6 +109,7 @@ async def technician_verification(email: str) -> Technician | None:
         raise Exception("Technician not recognized in the system.")
 
 
+@logger_decorator
 async def technician_associated_with_client(technician_id: int, client_id: int) -> bool:
     try:
         with connection.cursor() as cursor:
@@ -127,9 +118,7 @@ async def technician_associated_with_client(technician_id: int, client_id: int) 
             cursor.execute(sql, val)
             result = cursor.fetchall()
             if len(result) > 0:
-                logger.info("A match was found between the requested technician and the requested client")
                 return True
-            logger.info("A match was not found between the requested technician and the requested client")
             return False
     except MySQLError as ex:
         connection.rollback()
@@ -141,6 +130,7 @@ async def technician_associated_with_client(technician_id: int, client_id: int) 
         raise Exception("Technician not associated with this client.")
 
 
+@logger_decorator
 async def authorized_technician(technician_id: int, client_id: int) -> bool:
     # if a technician is authorized to treat the client  - return the true
     # else return false
@@ -151,9 +141,7 @@ async def authorized_technician(technician_id: int, client_id: int) -> bool:
             cursor.execute(sql, data)
             result = cursor.fetchall()
             if result:
-                logger.info("A match was found between the requested technician and the requested client")
                 return True
-            logger.info("A match was not found between the requested technician and the requested client")
             return False
 
     except MySQLError as ex:
@@ -166,6 +154,7 @@ async def authorized_technician(technician_id: int, client_id: int) -> bool:
         raise Exception("Opss, it is an error in authorized_technician")
 
 
+@logger_decorator
 async def authorized_technician_to_network(technician_email: str, network_id: int) -> bool:
     # if a technician is authorized to treat the client  - return the true
     # else return false
@@ -186,9 +175,7 @@ async def authorized_technician_to_network(technician_email: str, network_id: in
                 cursor.execute(sql, data)
                 result = cursor.fetchall()
                 if result:
-                    logger.info("A match was found between the requested network and the requested client")
                     return True
-            logger.info("A match was found between the requested network and the requested client")
             return False
 
     except MySQLError as ex:
@@ -199,5 +186,3 @@ async def authorized_technician_to_network(technician_email: str, network_id: in
         connection.rollback()
         connection.close()
         raise Exception("Opss, it is an error in authorized_technician_to_network")
-
-

@@ -15,12 +15,15 @@ from controllers.network_controller import get_network_by_id
 from db_management.models.entities import Network
 from file_management.network_model import map_file
 from visualization.visual_network import get_network_table, create_connections_graph_html
+from logger import logger_decorator
+
 
 BASEURL = "/networks"
 networks = APIRouter(
     responses={404: {"description": "not found"}})
 
 
+@logger_decorator
 @networks.get(BASEURL + "/{id}", response_model=Network | None)
 async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
@@ -30,6 +33,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return await get_network_by_id(int(id))
 
 
+# @logger_decorator
 # @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
 # async def get_network_visual(id: str, current_user: User = Depends(get_current_active_user)):
 #     import json
@@ -43,12 +47,15 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
 #     # network.production_date = str(network.production_date)
 #     return get_network_table(network.__dict__)
 
+
+@logger_decorator
 @networks.get(BASEURL + "/visual/{id}", response_class=HTMLResponse)
 async def get_network_visual(id: str):
     network: Network = await get_network_by_id(int(id))
     return get_network_table(network.__dict__)
 
 
+@logger_decorator
 @networks.get(BASEURL + "/visualCon/{id}", response_class=HTMLResponse)
 async def get_network(id: str, current_user: User = Depends(get_current_active_user)):
     if not current_user:
@@ -59,6 +66,7 @@ async def get_network(id: str, current_user: User = Depends(get_current_active_u
     return Response(content=graph_img.getvalue(), media_type="image/png")
 
 
+@logger_decorator
 @networks.post(BASEURL)
 async def create_network_model_from_file(file: UploadFile = File(...), client_id: int = Form(...),
                                          net_location: str = Form(...),
@@ -74,6 +82,8 @@ async def create_network_model_from_file(file: UploadFile = File(...), client_id
     file_content = await file.read()
     file_for_map = BytesIO(file_content)
     return await map_file(client_id, net_location, production_date, file_for_map)
+
+
 
 
 def valid_file_type(file):
