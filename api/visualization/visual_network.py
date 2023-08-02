@@ -47,14 +47,14 @@ def create_device_graph(data):
     G = nx.Graph()
     # Add nodes for each device and target device
     for device in data['devices']:
-        G.add_node(device['mac_address'], label=device['mac_address'])
+        G.add_node(device['ip_address'], label=device['ip_address'])
         for target_device in device['target_devices']:
-            G.add_node(target_device['mac_address'], label=target_device['mac_address'])
+            G.add_node(target_device['ip_address'], label=target_device['ip_address'])
 
     # Add edges between devices and their target devices
     for device in data['devices']:
         for target_device in device['target_devices']:
-            G.add_edge(device['mac_address'], target_device['mac_address'], protocol=target_device['protocol'])
+            G.add_edge(device['ip_address'], target_device['ip_address'], protocol=target_device['protocol'])
 
     return G
 
@@ -88,7 +88,7 @@ def get_connections_graph(network_json):
         mpld3.save_html(plt.gcf(), output_html)
         plt.close()
     except Exception as e:
-        print(f"error in teh network visualizaition... \n{e}")
+        print(f"error in the network visualization... \n{e}")
 
 
 
