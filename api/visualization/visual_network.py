@@ -82,6 +82,6 @@ def create_connections_graph_html(network: Network):
         plt.close()
         return buffer
     except Exception as e:
-        print(f"error in teh network visualization... \n{e}")
+        print(f"error in the network visualization... \n{e}")
 
 
