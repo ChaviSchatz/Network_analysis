@@ -8,7 +8,6 @@ from db_management.db_connection import connection
 from db_management.models.entities import Client, Technician
 
 
-
 @logger_decorator
 async def create_client(client: Client) -> None:
     try:

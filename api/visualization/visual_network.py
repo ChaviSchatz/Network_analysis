@@ -1,10 +1,6 @@
 import io
-import json
-# from typing import io
-
 import networkx as nx
 import matplotlib.pyplot as plt
-import mpld3
 
 from db_management.models.entities import Network
 
@@ -54,6 +50,7 @@ def create_device_graph(data):
     for device in data['devices']:
         protocols = []
         for target_device in device['target_devices']:
+            G.add_edge(device['ip_address'], target_device['ip_address'], protocol=target_device['protocol'])
             protocols.append(target_device["protocol"])
             G.add_edge(device['ip_address'], target_device['ip_address'], protocol=str(protocols))
 
@@ -86,6 +83,6 @@ def create_connections_graph_html(network: Network):
         plt.close()
         return buffer
     except Exception as e:
-        print(f"error in teh network visualization... \n{e}")
+        print(f"error in the network visualization... \n{e}")
 
 
