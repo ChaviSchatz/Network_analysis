@@ -1,87 +1,37 @@
-import asyncio
-import logging
 from typing import List
 
-from pymysql import MySQLError
-from logger import logger_decorator
 import asyncio
 
-from db_management.db_connection import connection
 from db_management.models.entities import Network, Device, Connection, TargetDevice
+from db_access import get_from_db, insert_update_to_db
 
 
-
-@logger_decorator
 async def create_network(network: Network) -> int:
-    try:
-        with connection.cursor() as cursor:
-            query = """INSERT INTO network (client_id, net_location, production_date)
-                            VALUES (%s, %s, %s)"""
-            data = (network.client_id, network.net_location, network.production_date)
-            cursor.execute(query, data)
-            connection.commit()
-            network_id = cursor.lastrowid
-            return network_id
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in create_network")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Error in create_network")
+    query = """INSERT INTO network (client_id, net_location, production_date)
+                    VALUES (%s, %s, %s)"""
+    data = (network.client_id, network.net_location, network.production_date)
+    network_id = await insert_update_to_db(query, data, "create a new network")
+    return network_id
 
 
-@logger_decorator
 async def insert_devices(device_list: List[Device]) -> None:
-    try:
-        with connection.cursor() as cursor:
-            query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
-                                             VALUES (%s, %s, %s, %s)"""
-            for d in device_list:
-                data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
-                cursor.execute(query, data)
-            connection.commit()
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in insert_devices")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Error in insert_network")
+    query = """INSERT INTO device (network_id, mac_address, ip_address, vendor)
+                                         VALUES (%s, %s, %s, %s)"""
+    for d in device_list:
+        data = (d.network_id, d.mac_address, d.ip_address, d.vendor)
+        await insert_update_to_db(query, data, "insert devices")
 
 
-@logger_decorator
 async def insert_connections(list_of_connections: List[Connection], network_id: int) -> None:
-    try:
-        with connection.cursor() as cursor:
-            sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s AND network_id = %s"""
-            sql = """INSERT INTO connection (src, dst, protocol)
+    sql_get_device_id = """SELECT id FROM device WHERE mac_address = %s AND network_id = %s"""
+    sql = """INSERT INTO connection (src, dst, protocol)
                    VALUES (%s,%s,%s)"""
-            i = 0
-            for con in list_of_connections:
-                if i % 100 == 0:
-                    print(i)
-                cursor.execute(sql_get_device_id, (con.src, network_id))
-                src_id = cursor.fetchall()
-                cursor.execute(sql_get_device_id, (con.dst, network_id))
-                dst_id = cursor.fetchall()
-                if src_id and dst_id:
-                    val = (src_id[0].get("id"), dst_id[0].get("id"), con.protocol)
-                    cursor.execute(sql, val)
-                i += 1
-            connection.commit()
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in insert_connections")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Error in insert_connections.")
+    for con in list_of_connections:
+        src_id = await get_from_db(sql_get_device_id, (con.src, network_id))
+        dst_id = await get_from_db(sql_get_device_id, (con.dst, network_id))
+        if src_id and dst_id:
+            val = (src_id[0].get("id"), dst_id[0].get("id"), con.protocol)
+            await insert_update_to_db(sql, val, "insert connections")
 
 
 def unique_set_from_list(obj_list: list) -> list:
@@ -94,11 +44,8 @@ def unique_set_from_list(obj_list: list) -> list:
 
 
 # The function returns a detailed network model
-@logger_decorator
 async def get_network(network_id: int) -> Network | None:
-    try:
-        with connection.cursor() as cursor:
-            query = """SELECT network.id AS network_id, network.client_id,
+    query = """SELECT network.id AS network_id, network.client_id,
             network.net_location, network.production_date,
             src_device.mac_address, src_device.ip_address, src_device.vendor,
             connection.protocol, dst_device.mac_address AS dst_mac_address,
@@ -109,83 +56,33 @@ async def get_network(network_id: int) -> Network | None:
             JOIN connection ON connection.src = src_device.id
             JOIN device AS dst_device ON dst_device.id = connection.dst WHERE network.id = %s"""
 
-            val = network_id
-            cursor.execute(query, val)
-            all_data = cursor.fetchall()
-            tech = get_network_obj_from_data(all_data)
-            return tech
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in get_network")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("can't get network from db.")
+    val = network_id
+    all_data = await get_from_db(query, val, "get_network")
+    tech = get_network_obj_from_data(all_data)
+    return tech
 
 
-@logger_decorator
 async def get_devices_by_one_or_more_filter(network_id: int, the_filter: dict) -> List[Device]:
-    try:
-        with connection.cursor() as cursor:
-            sql = """SELECT * FROM device WHERE network_id = (%s) """
-            params = [network_id]
-            # counter = 0
-            for key, value in the_filter.items():
-                sql += """ AND (%s) = (%s)"""
-                params.append(key)
-                params.append(value)
-            cursor.execute(sql, params)
-            result = cursor.fetchall()
-            return result
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in insert_connections")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Opss, it is an error in get_devices_by_one_or_more_filter")
+    query = """SELECT * FROM device WHERE network_id = (%s) """
+    params = [network_id]
+    for key, value in the_filter.items():
+        query += """ AND (%s) = (%s)"""
+        params.append(key)
+        params.append(value)
+    result = await get_from_db(query, params, "get_devices_by_one_or_more_filter")
+    return result
 
 
-@logger_decorator
 async def get_connections_by_protocol_filter(protocol_filter: dict) -> List[Connection]:
-    try:
-        with connection.cursor() as cursor:
-            sql = """SELECT * FROM connection WHERE protocol = (%s)"""
-            cursor.execute(sql, protocol_filter)
-            result = cursor.fetchall()
-            return result
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in insert_connections")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Opss, it is an error in get_connections_by_protocol_filter")
+    query = """SELECT * FROM connection WHERE protocol = (%s)"""
+    result = await get_from_db(query, protocol_filter)
+    return result
 
 
-@logger_decorator
 async def get_networks_by_client_id(client_id: int) -> List[Network]:
-    try:
-        with connection.cursor() as cursor:
-            sql = """SELECT * FROM network WHERE client_id = (%s)"""
-            cursor.execute(sql, client_id)
-            result = cursor.fetchall()
-            return result
-
-    except MySQLError as ex:
-        connection.rollback()
-        connection.close()
-        raise MySQLError(f"An error {ex} occurred in insert_connections")
-    except Exception:
-        connection.rollback()
-        connection.close()
-        raise Exception("Opss, it is an error in get_network_by_client_id")
+    query = """SELECT * FROM network WHERE client_id = (%s)"""
+    result = await get_from_db(query, client_id, "get_networks_by_client_id")
+    return result
 
 
 def get_network_obj_from_data(data_from_db: list) -> Network | None:
@@ -229,7 +126,7 @@ def get_network_obj_from_data(data_from_db: list) -> Network | None:
 
 async def main():
     id = await get_network(1)
-    print("121", )
+    print(id)
 
 
 asyncio.run(main())

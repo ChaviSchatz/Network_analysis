@@ -13,6 +13,7 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
+
 def logger_decorator(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):

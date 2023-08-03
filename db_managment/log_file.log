@@ -1,2 +1,0 @@
-2023-08-02 14:10:05,970 Function create_network called with args: (Network(id=None, client_id=1, net_location='NYC', production_date=datetime.date(2023, 2, 14), devices=None),), kwargs: {}
-2023-08-02 14:10:05,970 Function create_network returned: <coroutine object create_network at 0x0000021D3392EAC0>
